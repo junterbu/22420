@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D-Ansicht mit späterer AR-Funktion</title>
+    <script type="importmap">
+        {"imports":{
+            "three":
+            "https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js",
+                "three/addons/":
+                "https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/"
+        }}
+    </script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- 3D-Webansicht -->
+    <div id="canvas-container"></div>
+
+    <!-- Button, um später zur AR-Ansicht zu wechseln (wird später für AR verwendet) -->
+    <button id="startAR" style="display: none;">Start AR</button>
+
+    <!--Button für die View wechsel-->
+    <button id="leaveView" style="display: none;">Verlasse Ansicht</button>
+    <button id="toProberaum" style="display: none;">Zum Proberaum</button>
+    <button id="toLager" style="display: none;">Zum Lager</button>
+
+    <!--Schieberegler-->
+    <div id="uiContainer" style="display: none; position: absolute; top: 10px; left: 10px; background-color: white; padding: 10px; border: 1px solid black;">
+        <label for="percentRange">Prozentsatz aus Eimer:</label>
+        <input type="range" id="percentRange" min="0" max="100" value="0" step="1" />
+        <span id="percentValue">0%</span>
+        <button id="confirmSelection">Bestätigen</button>
+    </div>
+
+    <script type="module">
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import * as THREE from "three";
+        // Setup der Three.js Szene
+        let scene = new THREE.Scene();
+        let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        let renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Licht hinzufügen
+        let ambientLight = new THREE.AmbientLight(0xffffff, 0.6);  // Weiches Umgebungslicht
+        scene.add(ambientLight);
+
+        let directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);  // Richtungslicht
+        directionalLight.position.set(1, 1, 0);  // Beispielposition des Lichts
+        scene.add(directionalLight);
+        
+        camera.position.set(20, 20, 5); 
+
+        // Kamera-Positionen für Lagerraum und Proberaum
+        let lagerViewpoint = new THREE.Vector3(-12.5, 1.5, 4); 
+        let proberaumViewpoint = new THREE.Vector3(6.3, 1.5, -15); 
+
+        // Marker für den Lagerraum
+        let lagerMarkerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);  // Marker-Form (Box)
+        let lagerMarkerMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });  // Rot für Lagerraum
+        let lagerMarker = new THREE.Mesh(lagerMarkerGeometry, lagerMarkerMaterial);
+        lagerMarker.position.set(-12, 1.5, 4);  // Setze den Marker an die gewünschte Position im Lager
+        scene.add(lagerMarker);
+
+        // Marker für den Proberaum
+        let proberaumMarkerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+        let proberaumMarkerMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });  // Grün für Proberaum
+        let proberaumMarker = new THREE.Mesh(proberaumMarkerGeometry, proberaumMarkerMaterial);
+        proberaumMarker.position.set(6.3, 1.5, -15);  // Setze den Marker an die gewünschte Position im Proberaum
+        scene.add(proberaumMarker);
+
+        // GLTFLoader, um Modelle (Gebäude, Eimer, Siebturm) zu laden
+        const loader = new GLTFLoader();
+
+        // Lade das Gebäudemodell
+        loader.load('Assets/Gesamtmodell.glb', function(loadedGltf) {
+            scene.add(loadedGltf.scene);  // Originalmaterialien beibehalten
+        });
+
+        let markers = [lagerMarker, proberaumMarker];  // Die Marker-Objekte
+        let activeMarkers = [...markers];  // Die aktiven Marker (wird leer sein, wenn in einem Viewpoint)
+
+
+
+        //Kameraposition für Lager
+        function goToLager() {
+            camera.position.set(lagerViewpoint.x, lagerViewpoint.y, lagerViewpoint.z);
+            camera.lookAt(-10.9, 1.1, -4.75);
+
+            // Deaktiviere die Marker, indem du sie aus der Liste der interaktiven Objekte entfernst
+            activeMarkers = [];  // Keine Marker sind mehr aktiv, während du im Lager bist
+            markers.forEach(marker => marker.visible = false);
+
+            // Erlaube nur Rotation, kein Zoom
+            controls.enableZoom = false;
+            controls.enabled = true;  // Behalte die Rotationssteuerung bei
+
+            // Setze das Drehzentrum etwas vor die Kamera
+            let targetPosition = new THREE.Vector3(lagerViewpoint.x, lagerViewpoint.y, lagerViewpoint.z - 1);
+            controls.target.copy(targetPosition);
+            controls.update();
+
+            // "Verlasse Ansicht"-Button anzeigen
+            document.getElementById('leaveView').style.display = 'block';
+
+            // **Neuer Button "Zum Proberaum" anzeigen**
+            document.getElementById('toProberaum').style.display = 'block';  // Button für den Wechsel zum Proberaum
+            document.getElementById('toLager').style.display = 'none';  // Button für den Wechsel zum Proberaum 
+        }
+
+        function goToProberaum() {
+            camera.position.set(proberaumViewpoint.x, proberaumViewpoint.y, proberaumViewpoint.z);
+            camera.lookAt(6.3, 0.77,-16);
+            
+            // Deaktiviere die Marker
+            activeMarkers = [];  // Keine Marker sind mehr aktiv, während du im Proberaum bist
+            markers.forEach(marker => marker.visible = false);
+
+            // Erlaube nur Rotation, kein Zoom
+            controls.enableZoom = false;
+            controls.enabled = true;
+
+            // Setze das Drehzentrum etwas vor die Kamera
+            let targetPosition = new THREE.Vector3(proberaumViewpoint.x, proberaumViewpoint.y, proberaumViewpoint.z - 1);
+            controls.target.copy(targetPosition);
+            controls.update();
+
+            // "Verlasse Ansicht"-Button anzeigen
+            document.getElementById('leaveView').style.display = 'block';
+
+            // **Neuen Button "Zum Proberaum" ausblenden**
+            document.getElementById('toProberaum').style.display = 'none';  // Button ausblenden
+            document.getElementById('toLager').style.display = 'block';  // Button für den Wechsel zum Proberaum
+        }
+
+        // Test Buttons (während der 3D-Ansicht) zum Wechsel zwischen Lager und Proberaum
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'l') {
+                goToLager();
+            } else if (event.key === 'p') {
+                goToProberaum();
+            }
+        });
+        
+        //Orbit Controls
+        let controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+        controls.enableZoom = true;
+
+
+
+
+        // Raycaster und Mauskoordinaten definieren
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+
+        // Event-Listener für Mausklicks
+        window.addEventListener('click', function(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            // Prüfen, ob der Raycaster auf den Marker trifft
+            let intersects = raycaster.intersectObjects(activeMarkers);
+
+            if (intersects.length > 0) {
+                let clickedMarker = intersects[0].object;
+                
+                if (clickedMarker === lagerMarker) {
+                    // Wenn auf den Lagerraum-Marker geklickt wird
+                    goToLager();
+                } else if (clickedMarker === proberaumMarker) {
+                    // Wenn auf den Proberaum-Marker geklickt wird
+                    goToProberaum();
+                }
+            }
+        });
+
+
+        // Animations-Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        document.getElementById('toProberaum').addEventListener('click', function() {
+            goToProberaum();  // Springe in den Proberaum, wenn der Button geklickt wird
+        });
+
+        document.getElementById('toLager').addEventListener('click', function() {
+            goToLager();  // Springe in den Lagerraum, wenn der Button geklickt wird
+        });
+
+        document.getElementById('leaveView').addEventListener('click', function() {
+            // Kamera-Steuerung komplett freigeben (Zoom und Rotation)
+            controls.enableZoom = true;
+            controls.enabled = true;
+            
+            // Setze die Marker wieder in die Liste der interaktiven Objekte
+            activeMarkers = [...markers];
+            markers.forEach(marker => marker.visible = true);
+
+            // "Verlasse Ansicht"-Button ausblenden
+            document.getElementById('leaveView').style.display = 'none';
+            document.getElementById('toProberaum').style.display = 'none';
+            document.getElementById('toLager').style.display = 'none';  // Button ausblenden
+            
+            // Kamera in eine "freie" Position bewegen (optional)
+            camera.position.set(20, 20, 20);  // Beispielposition für die freie Ansicht
+            camera.lookAt(0, 0, 0);  // Auf den Mittelpunkt der Szene schauen
+        });
+
+        function createEimerLabel(eimerName, position) {
+            let labelGeometry = new THREE.PlaneGeometry(0.5, 0.25);  // Schildgröße
+            let labelMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            
+            // Text Canvas erstellen
+            let canvas = document.createElement('canvas');
+            canvas.width = 256;  // Breite des Canvas
+            canvas.height = 128;  // Höhe des Canvas
+            let context = canvas.getContext('2d');
+            context.font = '50px Arial';
+            context.fillStyle = 'white';
+            
+            // Textausrichtung und Basislinie setzen, um Text zu zentrieren
+            context.textAlign = 'center';  // Horizontal zentriert
+            context.textBaseline = 'middle';  // Vertikal zentriert
+
+            context.fillText(eimerName, canvas.width / 2, canvas.height / 2);  // Eimername als Text
+        
+            let texture = new THREE.CanvasTexture(canvas);
+            labelMaterial.map = texture;
+            
+            let label = new THREE.Mesh(labelGeometry, labelMaterial);
+            label.rotation.y = -Math.PI / 2;  // 90 Grad um die Y-Achse
+            label.position.set(position.x, position.y + 0.7, position.z);  // Schild über dem Eimer platzieren
+            
+            label.name=eimerName
+
+            return label;
+        }
+
+        let eimerPositionen = [
+            { name: '0.063/0.5', position: new THREE.Vector3(-10.9, 1.124, 3.25) },
+            { name: '0.5/2', position: new THREE.Vector3(-10.9, 1.124, 4) },
+            { name: '2/8', position: new THREE.Vector3(-10.9, 1.124, 4.75) },
+            { name: '8/16', position: new THREE.Vector3(-10.9, 1.124, 5.5) },
+            { name: '16/45', position: new THREE.Vector3(-10.9, 1.124, 6.25) },
+        ];
+
+        let proberaumPositionen = [
+            new THREE.Vector3(7.25, 0, -16),  
+            new THREE.Vector3(7.25, 0, -15.3), 
+            new THREE.Vector3(7.25, 0, -14.6),   
+            new THREE.Vector3(8, 0, -15.65),   
+            new THREE.Vector3(8, 0, -14.95),     
+        ];
+
+        // Erstelle für jeden Eimer ein Schild und füge es der Szene hinzu
+        let schildchen = [];  // Liste für die Schildchen
+        let eimerMeshes = [];  // Liste für die Eimer (Mesh-Objekte)
+
+        // Lade das GLTF-Modell (das deine Eimer enthält)
+        loader.load('Assets/Gesamtmodell.glb', function(gltf) {
+            scene.add(gltf.scene);  // Füge das gesamte GLTF-Modell der Szene hinzu
+
+            // Annahme: Die Eimer sind in der Szene als separate Objekte (z.B. durch Namen)
+            let currentEimerIndex = 0;
+            // Iteriere durch alle Objekte in der GLTF-Szene und finde die Eimer
+            gltf.scene.traverse(function (child) {
+                if (child.isMesh && child.name.startsWith('Cylinder') && currentEimerIndex < eimerPositionen.length) {  // Beispiel: Eimername beginnt mit "Eimer"
+                    eimerMeshes.push(child);
+                    console.log(`Eimer gefunden: ${child.name}`);
+                    currentEimerIndex++;  
+                }
+            });
+
+            // Erstelle Schildchen über jedem Eimer
+            eimerPositionen.forEach((eimer, index) => {
+                let label = createEimerLabel(eimer.name, eimer.position);
+                schildchen.push(label);  // Füge das Schild zur Liste der klickbaren Objekte hinzu
+                scene.add(label);  // Füge das Schild zur Szene hinzu
+                console.log(`Schild für ${eimer.name} erstellt und hinzugefügt`);
+            });
+            console.log(schildchen)
+            console.log(eimerMeshes)
+        });
+
+        
+        
+        // Raycasting-Interaktion hinzufügen
+        window.addEventListener('click', function(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        
+            raycaster.setFromCamera(mouse, camera);
+        
+            // Prüfe, ob ein Schildchen angeklickt wurde
+            let intersects = raycaster.intersectObjects(schildchen);
+        
+            if (intersects.length > 0) {
+                let clickedLabel = intersects[0].object;
+                console.log(`Schild angeklickt: ${clickedLabel.name}`);  // Zeigt den Namen des geklickten Schilds an
+        
+                // Finde heraus, welches Schild angeklickt wurde (Index)
+                let eimerIndex = schildchen.indexOf(clickedLabel);
+        
+                if (eimerIndex !== -1) {
+                    // Bewege den entsprechenden Eimer in den Proberaum
+                    let eimerMesh = eimerMeshes[eimerIndex];
+        
+                    // Setze den Eimer und das Schildchen unsichtbar im Lager
+                    eimerMesh.visible = false;
+                    clickedLabel.visible = false;
+        
+                    // Bewege das Eimer-Mesh in den Proberaum und mache es dort sichtbar
+                    let eimerMeshClone = eimerMesh.clone();  // Optional: Klonen, falls du Kopien im Proberaum willst
+                    eimerMeshClone.position.copy(proberaumPositionen[eimerIndex]);  // Setze die neue Position im Proberaum
+                    eimerMeshClone.visible = true;  // Sichtbar im Proberaum
+                    scene.add(eimerMeshClone);  // Füge das duplizierte Eimer-Mesh in die Szene ein
+        
+                    // Bewege das zugehörige Schildchen ebenfalls in den Proberaum
+                    let schildClone = clickedLabel.clone();  // Optional: Klonen, falls du das Schild kopieren willst
+                    schildClone.position.set(
+                        proberaumPositionen[eimerIndex].x,
+                        proberaumPositionen[eimerIndex].y + 0.7,  // Schild über dem Eimer
+                        proberaumPositionen[eimerIndex].z
+                    );
+                    schildClone.visible = true;  // Sichtbar im Proberaum
+                    scene.add(schildClone);  // Füge das Schild in den Proberaum ein
+        
+                    console.log(`Eimer ${eimerPositionen[eimerIndex].name} in den Proberaum bewegt und im Lager entfernt`);
+                }
+            } else {
+                console.log('Kein Schildchen angeklickt');
+            }
+        });
+
+
+    </script>
+</body>
+</html>
+

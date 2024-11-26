@@ -1,0 +1,93 @@
+import * as THREE from "three";
+import {camera} from "./View_functions.js";
+import {loader} from "./Lager.js";
+import {scene} from "./Allgemeines.js";
+import {eimerWerte} from "./Gesteinsraum.js";
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+// Erstellen einer Instanz des DRACOLoaders (aktivieren wenn Datei mit Draco Komprimiert)
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/'); // Pfad zum Draco-Decoder (kann angepasst werden)
+
+// Raycaster und Mauskoordinaten definieren
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
+
+// Globale Variable für den Bitumenanteil und die Rohdichte
+let bitumenAnteil = 0;
+let dichteMaterial = 2.9; // Beispielwert für die Dichte des Materials (in g/cm³)
+let dichteFuller = 1.35;
+let dichteBitumen = 1.02; // Dichte von Bitumen (in g/cm³)
+
+// Event-Listener für den Bitumen-Schieberegler
+document.getElementById('bitumenRange').addEventListener('input', function() {
+    bitumenAnteil = parseFloat(this.value);
+    document.getElementById('bitumenValue').textContent = `${bitumenAnteil}%`;
+});
+
+// Funktion zur Berechnung der Rohdichte des Materials
+function berechneRohdichte() {
+    let bitumenAnteil = parseFloat(document.getElementById('bitumenRange').value); // Bitumenanteil aus dem Schieberegler
+    let eimerWertFuller = eimerWerte['Füller']; // Prozentwert aus dem Füller-Eimer
+    
+    // Berechnung der Rohdichte mit angepasster Formel
+    let dichteGesamt = (dichteBitumen * bitumenAnteil +
+                        dichteFuller * eimerWertFuller * (100 - bitumenAnteil) +
+                        dichteMaterial * (100 - eimerWertFuller) * (100 - bitumenAnteil)) / 10000;
+    
+    alert(`Die berechnete Rohdichte beträgt: ${dichteGesamt.toFixed(3)} g/cm³`);
+}
+
+// Knopf-Klick-Ereignis zum Berechnen der Rohdichte
+//document.getElementById('calculateDensity').addEventListener('click', berechneRohdichte); //nur notwendig wenn ein extra Button zur Berechnung angesteuert wird. 
+
+// Knopfname aus dem GLTF-Modell, "MixButton"
+let mixButton;
+
+loader.setDRACOLoader(dracoLoader); //nur wenn datei mit Draco komprimiert!
+loader.setMeshoptDecoder(MeshoptDecoder);
+
+// Laden des GLTF-Modells und Identifizieren des Knopfes
+loader.load('Assets/Gesamtmodell-v1.glb', function(loadedGltf) {
+    scene.add(loadedGltf.scene);
+    
+    // Suche den Knopf in der GLTF-Szene und gebe alle Namen der gefundenen Objekte aus
+    loadedGltf.scene.traverse(function(child) {
+        if (child.isMesh) {
+            console.log("Gefundenes Objekt:", child.name); // Ausgabe aller Objektnamen zur Fehlersuche
+            if (child.name === "MixButton") {
+                mixButton = child;
+                console.log("MixButton gefunden:", mixButton); // Ausgabe zur Überprüfung
+            }
+        }
+    });
+
+    // Überprüfen, ob MixButton gefunden wurde
+    if (!mixButton) {
+        console.warn("MixButton wurde im GLTF-Modell nicht gefunden. Überprüfen Sie den Namen im Modell.");
+    }
+}, undefined, function(error) {
+    console.error("Fehler beim Laden des GLTF-Modells:", error);
+});
+
+// Raycasting-Event für den Klick auf den Knopf im GLTF-Modell
+window.addEventListener('click', function(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    // Prüfen, ob der Raycaster den Knopf am Gerät trifft
+    if (mixButton) {  // Sicherstellen, dass mixButton definiert ist
+        let intersects = raycaster.intersectObjects([mixButton]);
+        if (intersects.length > 0 && intersects[0].object === mixButton) {
+            console.log("MixButton wurde angeklickt!"); // Debug-Ausgabe für den Klick
+            berechneRohdichte(); // Führe die Berechnung aus
+        } else {
+            console.log("Klick hat den MixButton nicht getroffen.");
+        }
+    } else {
+        console.warn("MixButton ist noch nicht geladen oder nicht definiert.");
+    }
+});
