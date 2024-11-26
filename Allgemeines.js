@@ -111,3 +111,5 @@ ktx2Loader.load('Assets/background_texture.ktx2', function(texture) {
     texture.encoding = THREE.sRGBEncoding;
     scene.background = texture; // Setze optimierten Hintergrund
 });
+
+xx
