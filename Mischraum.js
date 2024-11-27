@@ -26,6 +26,43 @@ document.getElementById('bitumenRange').addEventListener('input', function() {
     document.getElementById('bitumenValue').textContent = `${bitumenAnteil}%`;
 });
 
+//Anzeige Rohdichte
+let Rohdichte = 0;  // Neue Variable für die Rohdichte
+
+// Erstelle ein Canvas für die 3D-Anzeige der Rohdichte
+let canvasRohdichte = document.createElement('canvas');
+canvasRohdichte.width = 768;
+canvasRohdichte.height = 128;
+let contextRohdichte = canvasRohdichte.getContext('2d');
+contextRohdichte.font = '50px Arial';
+contextRohdichte.fillStyle = 'white';
+contextRohdichte.textAlign = 'center';
+contextRohdichte.textBaseline = 'middle';
+
+// Initialer Text
+contextRohdichte.fillText('Bitumengehalt einstellen', canvasRohdichte.width / 2, canvasRohdichte.height / 2);
+
+// Erstelle eine Textur und ein Material aus dem Canvas
+let textureRohdichte = new THREE.CanvasTexture(canvasRohdichte);
+let materialRohdichte = new THREE.MeshStandardMaterial({ map: textureRohdichte, side: THREE.DoubleSide });
+
+// Erstelle ein Geometrieobjekt und verbinde es mit dem Material
+let RohdichteGeometry = new THREE.PlaneGeometry(2, 0.5);  // Größe des 3D-Texts
+let RohdichteMesh = new THREE.Mesh(RohdichteGeometry, materialRohdichte);
+
+// Platziere den Text über einem Marker
+RohdichteMesh.rotation.y = Math.PI*2.5;
+RohdichteMesh.position.set(-9.75, 2.1, 5.25); 
+scene.add(RohdichteMesh);
+
+// Funktion zur dynamischen Aktualisierung der Rohdichte im 3D-Text
+function updateRohdichteDisplay() {
+    contextRohdichte.clearRect(0, 0, canvasRohdichte.width, canvasRohdichte.height);
+    contextRohdichte.fillText(`Rohdichte: ${Rohdichte.toFixed(3)} g/cm³`, canvasRohdichte.width / 2, canvasRohdichte.height / 2);
+    textureRohdichte.needsUpdate = true;  // Aktualisiere die Textur im 3D-Raum
+}
+
+
 // Funktion zur Berechnung der Rohdichte des Materials
 function berechneRohdichte() {
     let bitumenAnteil = parseFloat(document.getElementById('bitumenRange').value); // Bitumenanteil aus dem Schieberegler
@@ -36,7 +73,8 @@ function berechneRohdichte() {
                         dichteFuller * eimerWertFuller * (100 - bitumenAnteil) +
                         dichteMaterial * (100 - eimerWertFuller) * (100 - bitumenAnteil)) / 10000;
     
-    alert(`Die berechnete Rohdichte beträgt: ${dichteGesamt.toFixed(3)} g/cm³`);
+    Rohdichte = dichteGesamt
+    updateRohdichteDisplay()
 }
 
 // Knopf-Klick-Ereignis zum Berechnen der Rohdichte
@@ -90,3 +128,5 @@ window.addEventListener('click', function(event) {
         console.warn("MixButton ist noch nicht geladen oder nicht definiert.");
     }
 });
+
+

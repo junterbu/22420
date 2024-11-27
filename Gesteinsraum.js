@@ -112,7 +112,6 @@ function showPercentageUI(eimerName) {
             eimerWerte[eimerName] = selectedValue;
             totalProzent += difference;
 
-            alert(`Du hast ${selectedValue}% aus dem Eimer ${eimerName} entnommen.`);
             updateTotalPercentageDisplay();
             
             // Rufe aktualisiereSieblinie auf, um die Sieblinie zu aktualisieren
