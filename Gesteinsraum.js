@@ -52,8 +52,8 @@ let totalProzentGeometry = new THREE.PlaneGeometry(1, 0.5);  // Größe des 3D-T
 let totalProzentMesh = new THREE.Mesh(totalProzentGeometry, materialTotalProzent);
 
 // Platziere den Text über einem Marker (z. B. proberaumMarker)
-totalProzentMesh.rotation.y = Math.PI*-2;
-totalProzentMesh.position.set(6.3, 2, -17);  // Beispielposition über dem Proberaum-Marker
+totalProzentMesh.rotation.y = Math.PI*-2.5;
+totalProzentMesh.position.set(8, 2, -16.5);  // Beispielposition über dem Proberaum-Marker
 scene.add(totalProzentMesh);
 
 // Funktion zur dynamischen Aktualisierung des Gesamtprozentsatzes im 3D-Text
@@ -313,7 +313,7 @@ function aktualisiereSieblinie() {
     textureSieblinie.needsUpdate = true;  // Aktualisiere die Textur in der Szene
 
     // Überprüfen, ob die Sieblinie innerhalb der Grenzen liegt
-    if (SieblinienGrenzanalyse(neueSieblinie)) {
+    if (SieblinienGrenzanalyse(neueSieblinie) == true) {
         toMischraumMarker.visible = true; // Marker sichtbar machen
     } else {
         toMischraumMarker.visible = false; // Marker verstecken
