@@ -82,9 +82,6 @@ export let currentEimer = null;  // Diese Variable muss global initialisiert wer
 function showPercentageUI(eimerName) {
     // Falls schon ein Schieberegler angezeigt wird, verstecke ihn
     let uiContainer = document.getElementById('uiContainer');
-    if (currentEimer !== null && currentEimer !== eimerName) {
-        uiContainer.style.display = 'none';
-    }
 
     // Setze den aktuellen Eimer
     currentEimer = eimerName;
@@ -98,31 +95,32 @@ function showPercentageUI(eimerName) {
     // Setze den Schiebereglerwert und die Anzeige
     document.getElementById('percentRange').value = eimerWerte[eimerName];
     document.getElementById('percentValue').textContent = `${eimerWerte[eimerName]}%`;
-
-    // Bestätigungsbutton anpassen
-    let confirmButton = document.getElementById('confirmSelection');
-    confirmButton.onclick = function() {
-        let selectedValue = parseInt(document.getElementById('percentRange').value);
-        let difference = selectedValue - eimerWerte[eimerName];
-
-        if (totalProzent + difference > 100) {
-            alert('Du kannst insgesamt nur maximal 100% entnehmen.');
-        } else {
-            // Aktualisiere den Wert für den aktuellen Eimer
-            eimerWerte[eimerName] = selectedValue;
-            totalProzent += difference;
-
-            updateTotalPercentageDisplay();
-            
-            // Rufe aktualisiereSieblinie auf, um die Sieblinie zu aktualisieren
-            aktualisiereSieblinie();
-        }
-    };
 };
 
 // Event-Listener für Schieberegler-Änderungen
 document.getElementById('percentRange').addEventListener('input', function() {
-    document.getElementById('percentValue').textContent = `${this.value}%`;
+    const eimerName = currentEimer; // Aktueller Eimer
+    const selectedValue = parseInt(this.value);
+  
+    // Prüfen, ob Gesamtprozentsatz überschritten wird
+    const difference = selectedValue - eimerWerte[eimerName];
+    if (totalProzent + difference > 100) {
+      alert("Du kannst insgesamt nur maximal 100% entnehmen.");
+      this.value = eimerWerte[eimerName]; // Zurücksetzen auf vorherigen Wert
+      return;
+    }
+  
+    // Prozentwert und Gesamtsumme aktualisieren
+    eimerWerte[eimerName] = selectedValue;
+    totalProzent += difference;
+  
+    document.getElementById("percentValue").textContent = `${selectedValue}%`;
+  
+    // 3D-Anzeige des Gesamtprozentsatzes aktualisieren
+    updateTotalPercentageDisplay();
+  
+    // Sieblinie aktualisieren
+    aktualisiereSieblinie();
 });
 
 let sieblinien = {
@@ -138,7 +136,7 @@ let sieblinien = {
 
 
 function berechneGesamtsieblinie() {
-    let gesamtsieblinie = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // Länge des Gesamtsieblinien-Arrays
+    let gesamtsieblinie = Array(12).fill(0);; // Länge des Gesamtsieblinien-Arrays
 
     for (let eimer in eimerWerte) {
         let prozent = eimerWerte[eimer] / 100;

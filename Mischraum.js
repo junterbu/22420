@@ -40,8 +40,16 @@ contextRohdichte.textAlign = 'center';
 contextRohdichte.textBaseline = 'middle';
 
 // Initialer Text
-const text = "Bitumengehalt einstellen\nund grünen Knopf drücken"
-contextRohdichte.fillText(text, canvasRohdichte.width / 2, canvasRohdichte.height / 2);
+// Zweizeiliger Text
+const line1 = "Bitumengehalt einstellen";
+const line2 = "und grünen Knopf drücken";
+
+// Zeichne die erste Zeile (oben)
+contextRohdichte.fillText(line1, canvasRohdichte.width / 2, canvasRohdichte.height / 3);
+
+// Zeichne die zweite Zeile (unten)
+contextRohdichte.fillText(line2, canvasRohdichte.width / 2, (canvasRohdichte.height / 3) * 2);
+
 
 // Erstelle eine Textur und ein Material aus dem Canvas
 let textureRohdichte = new THREE.CanvasTexture(canvasRohdichte);
