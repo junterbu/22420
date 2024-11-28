@@ -7,7 +7,6 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
-import {lagerMarker, proberaumMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, activeMarkers} from "./Marker.js";
 import {goToLager, goToProberaum, goToMischraum, leaveView, camera, controls, renderer} from "./View_functions.js";
 
 
@@ -99,15 +98,4 @@ loader.load('Assets/Gesamtmodell-v1.glb', function(gltf) {
     scene.add(optimizedGroup);
 }, undefined, function(error) {
     console.error('Fehler beim Laden des GLTF-Modells:', error);
-});
-
-
-import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
-
-const ktx2Loader = new KTX2Loader();
-ktx2Loader.setTranscoderPath('https://cdn.jsdelivr.net/three/examples/jsm/libs/basis/').detectSupport(renderer);
-
-ktx2Loader.load('Assets/background_texture.ktx2', function(texture) {
-    texture.encoding = THREE.sRGBEncoding;
-    scene.background = texture; // Setze optimierten Hintergrund
 });

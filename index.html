@@ -60,7 +60,7 @@
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
         import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
         import * as THREE from "three";
-        import {lagerMarker, proberaumMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, activeMarkers, markers} from "./Marker.js";
+        import {lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, activeMarkers, markers} from "./Marker.js";
         import {goToLager, goToProberaum, goToMischraum, leaveView, camera, controls, renderer} from "./View_functions.js";
         import {proberaumPositionen, schildchen, eimerMeshes, eimerPositionen, createEimerLabel, loader} from "./Lager.js";
         import {scene} from "./Allgemeines.js"
@@ -69,7 +69,7 @@
         //Marker aus Marker.js hinzufügen
         scene.add(proberaumlagerMarker);
         scene.add(lagerMarker);
-        scene.add(proberaumMarker);
+        // scene.add(proberaumMarker);
         scene.add(lagerproberaumMarker);
         scene.add(leavelagerMarker);
         scene.add(leaveproberaumMarker);
@@ -97,8 +97,6 @@
                 if (clickedMarker === lagerMarker) {
                     // Wenn auf den Lagerraum-Marker geklickt wird
                     goToLager();
-                } else if (clickedMarker === proberaumMarker) { 
-                    goToProberaum();
                 } else if (clickedMarker === proberaumlagerMarker){
                     goToLager();
                 } else if (clickedMarker === lagerproberaumMarker) {
