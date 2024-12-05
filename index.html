@@ -60,7 +60,7 @@
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
         import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
         import * as THREE from "three";
-        import {lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, activeMarkers, markers} from "./Marker.js";
+        import {lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, toMarshall, activeMarkers, markers} from "./Marker.js";
         import {goToLager, goToProberaum, goToMischraum, leaveView, camera, controls, renderer} from "./View_functions.js";
         import {proberaumPositionen, schildchen, eimerMeshes, eimerPositionen, createEimerLabel, loader} from "./Lager.js";
         import {scene} from "./Allgemeines.js"
@@ -76,6 +76,7 @@
         // toMischraumMarker.visible = false; // Standardmäßig versteckt
         scene.add(toMischraumMarker);
         scene.add(leaveMischraum);
+        scene.add(toMarshall);
 
         // Raycaster und Mauskoordinaten definieren
         let raycaster = new THREE.Raycaster();
