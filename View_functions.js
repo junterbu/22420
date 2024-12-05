@@ -21,6 +21,7 @@ camera.position.set(20, 20, 5);
 let lagerViewpoint = new THREE.Vector3(-12.5, 1.5, 4); 
 let proberaumViewpoint = new THREE.Vector3(5, 1.5, -15); 
 let MischraumViewpoint = new THREE.Vector3(-8, 1.5, 7);
+let MarshallViewpoint = new THREE.Vector3(-6.5, 1.5, 3);
 
 //Kameraposition für Lager
 export function goToLager() {
@@ -94,6 +95,26 @@ export function leaveView() {
     document.getElementById('uiContainer').style.display = 'none';
 
     // Blende den `bitumenUI`-Schieberegler aus
+    document.getElementById('bitumenUI').style.display = 'none';
+}
+
+export function toMarshall() {
+    camera.position.set(MarshallViewpoint.x, MarshallViewpoint.y, MarshallViewpoint.z);
+    camera.lookAt(-10.9, 1.1, -4.75);
+
+    // Erlaube nur Rotation, kein Zoom
+    controls.enableZoom = false;
+    controls.enabled = true;  // Behalte die Rotationssteuerung bei
+
+    // Setze das Drehzentrum etwas vor die Kamera
+    let targetPosition = new THREE.Vector3(MarshallViewpoint.x, MarshallViewpoint.y, MarshallViewpoint.z - 0.1);
+    controls.target.copy(targetPosition);
+    controls.update();
+
+    // Blende den `uiContainer`-Schieberegler aus
+    document.getElementById('uiContainer').style.display = 'none';
+
+    // Blende den `bitumenUI`-Schieberegler ein
     document.getElementById('bitumenUI').style.display = 'none';
 }
 

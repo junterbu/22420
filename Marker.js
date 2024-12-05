@@ -32,12 +32,12 @@ export const leaveproberaumMarker = createMarker(0.5, 2, 512, 128, "zur Übersic
 export const leavelagerMarker = createMarker(0.5, 2, 512, 128, "zur Übersicht", -12.5, 1.5, 8, 1);
 export const toMischraumMarker = createMarker(0.5, 1.5, 384, 128, "zum Mischraum", 6, 1.5, -10, 1);
 export const leaveMischraum = createMarker(0.5, 1.5, 512, 128, "zur Übersicht", -3, 1.5, 6, 1.5);
-export const toMarshall = createMarker(0.5, 1, 256, 128, "Marshall", -8, 2, 4.5, 2)
+export const toMarshallMarker = createMarker(0.5, 1, 256, 128, "Marshall", -8, 2, 4.5, 2)
 // export let totalProzentMesh = createMarker(1, 0.5, 256, 128, "Total: 0%", 8, 2, -16.75, -2);
 
 
-export let markers = [lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, leavelagerMarker, leaveMischraum, toMarshall];  // Die Marker-Objekte
-export let activeMarkers = [lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, leavelagerMarker, leaveMischraum, toMarshall];  // Die aktiven Marker (wird leer sein, wenn in einem Viewpoint)
+export let markers = [lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, leavelagerMarker, leaveMischraum, toMarshallMarker];  // Die Marker-Objekte
+export let activeMarkers = [lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, leavelagerMarker, leaveMischraum, toMarshallMarker];  // Die aktiven Marker (wird leer sein, wenn in einem Viewpoint)
 
 
 
