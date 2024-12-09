@@ -30,7 +30,8 @@ export function goToLager() {
 
     // Erlaube nur Rotation, kein Zoom
     controls.enableZoom = false;
-    controls.enabled = true;  // Behalte die Rotationssteuerung bei
+    controls.enablePan = false;
+    controls.enableRotate = true;  // Behalte die Rotationssteuerung bei
 
     // Setze das Drehzentrum etwas vor die Kamera
     let targetPosition = new THREE.Vector3(lagerViewpoint.x, lagerViewpoint.y, lagerViewpoint.z - 0.1);
@@ -47,7 +48,8 @@ export function goToProberaum() {
 
     // Erlaube nur Rotation, kein Zoom
     controls.enableZoom = false;
-    controls.enabled = true;
+    controls.enablePan = false;
+    controls.enableRotate = true;  // Behalte die Rotationssteuerung bei
 
     // Setze das Drehzentrum etwas vor die Kamera
     let targetPosition = new THREE.Vector3(proberaumViewpoint.x, proberaumViewpoint.y, proberaumViewpoint.z - 0.1);
@@ -64,10 +66,11 @@ export function goToMischraum() {
 
     // Erlaube nur Rotation, kein Zoom
     controls.enableZoom = false;
-    controls.enabled = true;  // Behalte die Rotationssteuerung bei
+    controls.enablePan = false;
+    controls.enableRotate = true;  // Behalte die Rotationssteuerung bei
 
     // Setze das Drehzentrum etwas vor die Kamera
-    let targetPosition = new THREE.Vector3(MischraumViewpoint.x, MischraumViewpoint.y, MischraumViewpoint.z - 1);
+    let targetPosition = new THREE.Vector3(MischraumViewpoint.x, MischraumViewpoint.y, MischraumViewpoint.z - 0.1);
     controls.target.copy(targetPosition);
     controls.update();
 
@@ -104,7 +107,8 @@ export function toMarshall() {
 
     // Erlaube nur Rotation, kein Zoom
     controls.enableZoom = false;
-    controls.enabled = true;  // Behalte die Rotationssteuerung bei
+    controls.enablePan = false;
+    controls.enableRotate = true;  // Behalte die Rotationssteuerung bei
 
     // Setze das Drehzentrum etwas vor die Kamera
     let targetPosition = new THREE.Vector3(MarshallViewpoint.x, MarshallViewpoint.y, MarshallViewpoint.z - 0.1);
