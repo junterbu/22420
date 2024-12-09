@@ -15,11 +15,11 @@ setInterval(() => {
 }, 5000); // Gibt alle 5 Sekunden Informationen zum Renderer aus
 
 export let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(20, 20, 5); 
+camera.position.set(20, 20, 5);
 
 // Kamera-Positionen für Lagerraum und Proberaum
-let lagerViewpoint = new THREE.Vector3(-12.5, 1.5, 4); 
-let proberaumViewpoint = new THREE.Vector3(5, 1.5, -15); 
+let lagerViewpoint = new THREE.Vector3(-12.5, 1.5, 4);
+let proberaumViewpoint = new THREE.Vector3(5, 1.5, -15);
 let MischraumViewpoint = new THREE.Vector3(-8, 1.5, 7);
 let MarshallViewpoint = new THREE.Vector3(-6.5, 1.5, 3);
 
