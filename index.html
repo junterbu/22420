@@ -62,7 +62,7 @@
         import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
         import * as THREE from "three";
         import {lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, toMarshallMarker, leaveMarshall, activeMarkers, markers} from "./Marker.js";
-        import {goToLager, goToProberaum, goToMischraum, leaveView, camera, controls, renderer, toMarshall} from "./View_functions.js";
+        import {goToLager, fromLagertoProberaum, goToMischraum, leaveView, camera, controls, renderer, toMarshall, fromProberaumtoLager} from "./View_functions.js";
         import {proberaumPositionen, schildchen, eimerMeshes, eimerPositionen, createEimerLabel, loader} from "./Lager.js";
         import {scene} from "./Allgemeines.js"
         import {eimerWerte} from "./Gesteinsraum.js"
@@ -102,9 +102,9 @@
                     // Wenn auf den Lagerraum-Marker geklickt wird
                     goToLager();
                 } else if (clickedMarker === proberaumlagerMarker){
-                    goToLager();
+                    fromProberaumtoLager();
                 } else if (clickedMarker === lagerproberaumMarker) {
-                    goToProberaum();
+                    fromLagertoProberaum();
                 } else if (clickedMarker === leaveproberaumMarker) {
                     leaveView();
                 } else if (clickedMarker === leavelagerMarker) {
