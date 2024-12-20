@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {dirLight} from "./Allgemeines.js";
+import {TWEEN} from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';;
 
 
 export let renderer = new THREE.WebGLRenderer();
@@ -13,6 +14,29 @@ renderer.shadowMap.enabled = false; // Nur aktivieren, wenn Schatten notwendig
 export let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(20, 20, 5);
 
+export function animateCamera(targetPosition, targetLookAt) {
+    const startPosition = camera.position.clone();
+    const startLookAt = controls.target.clone();
+
+    // Kamera-Position animieren
+    new TWEEN.Tween(startPosition)
+        .to(targetPosition, 2000)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .onUpdate(() => {
+            camera.position.copy(startPosition);
+        })
+        .start();
+
+    // Zielpunkt (controls.target) animieren
+    new TWEEN.Tween(startLookAt)
+        .to(targetLookAt, 2000)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .onUpdate(() => {
+            controls.target.copy(startLookAt);
+            controls.update();
+        })
+        .start();
+}
 
 // Kamera-Positionen für Lagerraum und Proberaum
 let lagerViewpoint = new THREE.Vector3(-12.5, 1.5, 4);
@@ -20,40 +44,70 @@ let proberaumViewpoint = new THREE.Vector3(5, 1.5, -15);
 let MischraumViewpoint = new THREE.Vector3(-8, 1.5, 7);
 let MarshallViewpoint = new THREE.Vector3(-8, 1.5, 3);
 
-//Kameraposition für Lager
 export function goToLager() {
-    camera.position.set(lagerViewpoint.x, lagerViewpoint.y, lagerViewpoint.z);
-    camera.lookAt(-10.9, 1.1, -4.75);
+    // Zielposition und LookAt-Werte definieren
+    const targetPosition = new THREE.Vector3(lagerViewpoint.x, lagerViewpoint.y, lagerViewpoint.z);
+    const targetLookAt = new THREE.Vector3(lagerViewpoint.x, lagerViewpoint.y, lagerViewpoint.z - 0.1);
+
+    // Kamera animiert bewegen
+    animateCamera(targetPosition, targetLookAt);
+
+    // Setze den Drehpunkt (target) auf die gewünschte Position
+    controls.target.set(targetLookAt.x, targetLookAt.y, targetLookAt.z);
+    controls.update();
 
     // Erlaube nur Rotation, kein Zoom
     controls.enableZoom = false;
     controls.enablePan = false;
-    controls.enableRotate = true;  // Behalte die Rotationssteuerung bei
-
-    // Setze das Drehzentrum etwas vor die Kamera
-    let targetPosition = new THREE.Vector3(lagerViewpoint.x, lagerViewpoint.y, lagerViewpoint.z - 0.1);
-    controls.target.copy(targetPosition);
-    controls.update();
-
+    controls.enableRotate = true;
+    
     // Blende den `uiContainer`-Schieberegler aus
     document.getElementById('uiContainer').style.display = 'none';
 }
 
 export function goToProberaum() {
-    camera.position.set(proberaumViewpoint.x, proberaumViewpoint.y, proberaumViewpoint.z);
-    camera.lookAt(6.3, 0.77,-16);
 
-    // Erlaube nur Rotation, kein Zoom
-    controls.enableZoom = false;
-    controls.enablePan = false;
-    controls.enableRotate = true;  // Behalte die Rotationssteuerung bei
+    //Wegpunkte vom Lager ins Labor
+    const points = [
+        new THREE.Vector3(-12.5, 1.5, 4),  // Startpunkt (Lager)
+        new THREE.Vector3(-12.5, 1.5, 9),    // Zwischenpunkt
+        new THREE.Vector3(-2, 1.5, 9),    // Weitere Zwischenstation
+        new THREE.Vector3(-1, 1.5, -9),    // Weitere Zwischenstation
+        new THREE.Vector3(5, 1.5, -11),    // Weitere Zwischenstation
+        new THREE.Vector3(5, 1.5, -15)    // Zielpunkt (Proberaum)
+    ];
 
-    // Setze das Drehzentrum etwas vor die Kamera
-    let targetPosition = new THREE.Vector3(proberaumViewpoint.x, proberaumViewpoint.y, proberaumViewpoint.z - 0.1);
-    controls.target.copy(targetPosition);
-    controls.update();
+    // Erstelle die Kurve
+    const curve = new THREE.CatmullRomCurve3(points);
 
-    // Blende den `uiContainer`-Schieberegler ein
+    // Anzahl der Segmente der Animation
+    const numPoints = 500;
+    const curvePoints = curve.getPoints(numPoints);
+    
+    // Animation über den Pfad
+    let index = 0;
+    function animateAlongPath() {
+        if (index < curvePoints.length - 1) {
+            const currentPoint = curvePoints[index];
+            const nextPoint = curvePoints[index + 1];
+
+            // Setze die Kamera-Position
+            camera.position.copy(currentPoint);
+            controls.target.copy(nextPoint); // Setze Zielpunkt auf nächsten Punkt
+            controls.update();
+
+            index++;
+            setTimeout(() => requestAnimationFrame(animateAlongPath), 30); // Verzögerung zwischen Frames
+        } else {
+            // Animation beendet
+            console.log("Kamera hat den Proberaum erreicht.");
+        }
+    }   
+
+    // Start der Animation
+    animateAlongPath();
+
+    // Schieberegler einblenden (optional)
     document.getElementById('uiContainer').style.display = 'block';
 }
 
@@ -177,6 +231,7 @@ function updateQuality(level) {
     dirLight.shadow.needsUpdate = true; // Aktualisiere Schatten
     console.log(`Renderqualität geändert: Level ${level}`);
 }
+
 
 
 measureFrameRate();

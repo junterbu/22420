@@ -8,6 +8,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import {goToLager, goToProberaum, goToMischraum, leaveView, camera, controls, renderer} from "./View_functions.js";
+import {TWEEN} from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';
 
 
 // Erstellen einer Instanz des DRACOLoaders (aktivieren wenn Datei mit Draco Komprimiert)
@@ -62,6 +63,7 @@ composer.addPass(renderPass);
 // Animation-Loop mit Composer
 function animate_renderer() {
     requestAnimationFrame(animate_renderer);
+    TWEEN.update(); // Tween-Animationen aktualisieren
     composer.render(); // Verwende Composer anstelle von renderer.render()
 }
 
@@ -99,3 +101,5 @@ loader.load('Assets/Gesamtmodell-v1.glb', function(gltf) {
 }, undefined, function(error) {
     console.error('Fehler beim Laden des GLTF-Modells:', error);
 });
+
+animate_renderer(); 

@@ -27,9 +27,9 @@ function createMarker(h, b, pxx, pxz, text, x, y, z, r) {
 export const proberaumlagerMarker = createMarker(0.5, 1, 256, 128, "zum Lager", 4, 1.5, -10, 1);
 export const lagerMarker = createMarker(1, 2, 256, 128, "Lager", -12, 10, 4, 0);
 // export const proberaumMarker = createMarker(1, 2, 256, 128, "Proberaum", 6.3, 10, -15, 0);
-export const lagerproberaumMarker = createMarker(0.5, 2, 512, 128, "zum Proberaum", -12.5, 1.5, -2, 0);
+export const leavelagerMarker = createMarker(0.5, 2, 512, 128, "zur Übersicht", -12.5, 1.5, -2, 0);
 export const leaveproberaumMarker = createMarker(0.5, 2, 512, 128, "zur Übersicht", 2, 1.5, -10, 1);
-export const leavelagerMarker = createMarker(0.5, 2, 512, 128, "zur Übersicht", -12.5, 1.5, 8, 1);
+export const lagerproberaumMarker = createMarker(0.5, 2, 512, 128, "zum Proberaum", -12.5, 1.5, 8, 1);
 export const toMischraumMarker = createMarker(0.5, 1.5, 384, 128, "zum Mischraum", 6, 1.5, -10, 1);
 export const leaveMischraum = createMarker(0.5, 1.5, 512, 128, "zur Übersicht", -3, 1.5, 6, 1.5);
 export const toMarshallMarker = createMarker(0.5, 1, 256, 128, "Marshall", -8, 2, 4.5, 2)
