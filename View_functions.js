@@ -65,7 +65,7 @@ export function goToLager() {
     document.getElementById('uiContainer').style.display = 'none';
 }
 
-export function goToProberaum() {
+export function fromLagertoProberaum() {
 
     //Wegpunkte vom Lager ins Labor
     const points = [
@@ -81,7 +81,7 @@ export function goToProberaum() {
     const curve = new THREE.CatmullRomCurve3(points);
 
     // Anzahl der Segmente der Animation
-    const numPoints = 500;
+    const numPoints = 400;
     const curvePoints = curve.getPoints(numPoints);
     
     // Animation über den Pfad
@@ -111,21 +111,92 @@ export function goToProberaum() {
     document.getElementById('uiContainer').style.display = 'block';
 }
 
+export function fromProberaumtoLager() {
+    //Wegpunkte vom Gesteinsraum ins Lager
+    const points = [
+        new THREE.Vector3(5, 1.5, -15),    // Zielpunkt (Proberaum)
+        new THREE.Vector3(5, 1.5, -11),    // Weitere Zwischenstation
+        new THREE.Vector3(-1, 1.5, -9),    // Weitere Zwischenstation
+        new THREE.Vector3(-2, 1.5, 9),    // Weitere Zwischenstation
+        new THREE.Vector3(-12.5, 1.5, 9),    // Zwischenpunkt
+        new THREE.Vector3(-12.5, 1.5, 4),  // Startpunkt (Lager)
+    ];
+
+    // Erstelle die Kurve
+    const curve = new THREE.CatmullRomCurve3(points);
+
+    // Anzahl der Segmente der Animation
+    const numPoints = 400;
+    const curvePoints = curve.getPoints(numPoints);
+    
+    // Animation über den Pfad
+    let index = 0;
+    function animateAlongPath() {
+        if (index < curvePoints.length - 1) {
+            const currentPoint = curvePoints[index];
+            const nextPoint = curvePoints[index + 1];
+
+            // Setze die Kamera-Position
+            camera.position.copy(currentPoint);
+            controls.target.copy(nextPoint); // Setze Zielpunkt auf nächsten Punkt
+            controls.update();
+
+            index++;
+            setTimeout(() => requestAnimationFrame(animateAlongPath), 30); // Verzögerung zwischen Frames
+        } else {
+            // Animation beendet
+            console.log("Kamera hat den Proberaum erreicht.");
+        }
+    }   
+
+    // Start der Animation
+    animateAlongPath();
+
+    // Schieberegler einblenden (optional)
+    document.getElementById('uiContainer').style.display = 'none';
+}
+
 export function goToMischraum() {
-    camera.position.set(MischraumViewpoint.x, MischraumViewpoint.y, MischraumViewpoint.z);
-    camera.lookAt(-12, 1.1, -7);
+    //Wegpunkte vom Gesteinsraum ins Lager
+    const points = [
+        new THREE.Vector3(5, 1.5, -15),    // Startpunkt
+        new THREE.Vector3(5, 1.5, -11),    // Weitere Zwischenstation
+        new THREE.Vector3(-1, 1.5, -9),    // Weitere Zwischenstation
+        new THREE.Vector3(-2, 1.5, 6),    // Weitere Zwischenstation
+        new THREE.Vector3(-8, 1.5, 7),    // Endpunkt
+    ];
 
-    // Erlaube nur Rotation, kein Zoom
-    controls.enableZoom = false;
-    controls.enablePan = false;
-    controls.enableRotate = true;  // Behalte die Rotationssteuerung bei
+    // Erstelle die Kurve
+    const curve = new THREE.CatmullRomCurve3(points);
 
-    // Setze das Drehzentrum etwas vor die Kamera
-    let targetPosition = new THREE.Vector3(MischraumViewpoint.x, MischraumViewpoint.y, MischraumViewpoint.z - 0.1);
-    controls.target.copy(targetPosition);
-    controls.update();
+    // Anzahl der Segmente der Animation
+    const numPoints = 400;
+    const curvePoints = curve.getPoints(numPoints);
 
-    // Blende den `uiContainer`-Schieberegler aus
+    // Animation über den Pfad
+    let index = 0;
+    function animateAlongPath() {
+        if (index < curvePoints.length - 1) {
+            const currentPoint = curvePoints[index];
+            const nextPoint = curvePoints[index + 1];
+
+            // Setze die Kamera-Position
+            camera.position.copy(currentPoint);
+            controls.target.copy(nextPoint); // Setze Zielpunkt auf nächsten Punkt
+            controls.update();
+
+            index++;
+            setTimeout(() => requestAnimationFrame(animateAlongPath), 30); // Verzögerung zwischen Frames
+        } else {
+            // Animation beendet
+            console.log("Kamera hat den Proberaum erreicht.");
+        }
+    }   
+
+    // Start der Animation
+    animateAlongPath();
+
+    // Schieberegler einblenden (optional)
     document.getElementById('uiContainer').style.display = 'none';
 
     // Blende den `bitumenUI`-Schieberegler ein
@@ -133,6 +204,17 @@ export function goToMischraum() {
 }
 
 export function leaveView() {
+    // Zielposition und LookAt-Werte definieren
+    const targetPosition = new THREE.Vector3(20, 20, 20);
+    const targetLookAt = new THREE.Vector3(0, 0, 0);
+
+    // Kamera animiert bewegen
+    animateCamera(targetPosition, targetLookAt);
+
+    // Setze den Drehpunkt (target) auf die gewünschte Position
+    controls.target.set(targetLookAt.x, targetLookAt.y, targetLookAt.z);
+    controls.update();
+
     camera.position.set(20, 20, 20);  // Beispielposition für die freie Ansicht
     camera.lookAt(0, 0, 0);
     
@@ -154,18 +236,43 @@ export function leaveView() {
 }
 
 export function toMarshall() {
-    camera.position.set(MarshallViewpoint.x, MarshallViewpoint.y, MarshallViewpoint.z);
-    camera.lookAt(-10.9, 1.1, -4.75);
+    //Wegpunkte vom Gesteinsraum ins Lager
+    const points = [
+        new THREE.Vector3(-8, 1.5, 7),    // Startpunkt
+        new THREE.Vector3(-2, 1.5, 6),    // Weitere Zwischenstation
+        new THREE.Vector3(-2, 1.5, 3),    // Weitere Zwischenstation
+        new THREE.Vector3(MarshallViewpoint.x, MarshallViewpoint.y, MarshallViewpoint.z),    // Endpunkt
+    ];
 
-    // Erlaube nur Rotation, kein Zoom
-    controls.enableZoom = false;
-    controls.enablePan = false;
-    controls.enableRotate = true;  // Behalte die Rotationssteuerung bei
+    // Erstelle die Kurve
+    const curve = new THREE.CatmullRomCurve3(points);
 
-    // Setze das Drehzentrum etwas vor die Kamera
-    let targetPosition = new THREE.Vector3(MarshallViewpoint.x, MarshallViewpoint.y, MarshallViewpoint.z - 0.1);
-    controls.target.copy(targetPosition);
-    controls.update();
+    // Anzahl der Segmente der Animation
+    const numPoints = 300;
+    const curvePoints = curve.getPoints(numPoints);
+
+    // Animation über den Pfad
+    let index = 0;
+    function animateAlongPath() {
+        if (index < curvePoints.length - 1) {
+            const currentPoint = curvePoints[index];
+            const nextPoint = curvePoints[index + 1];
+
+            // Setze die Kamera-Position
+            camera.position.copy(currentPoint);
+            controls.target.copy(nextPoint); // Setze Zielpunkt auf nächsten Punkt
+            controls.update();
+
+            index++;
+            setTimeout(() => requestAnimationFrame(animateAlongPath), 30); // Verzögerung zwischen Frames
+        } else {
+            // Animation beendet
+            console.log("Kamera hat den Proberaum erreicht.");
+        }
+    }   
+
+    // Start der Animation
+    animateAlongPath();
 
     // Blende den `uiContainer`-Schieberegler aus
     document.getElementById('uiContainer').style.display = 'none';
