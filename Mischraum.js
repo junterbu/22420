@@ -5,6 +5,7 @@ import {scene} from "./Allgemeines.js";
 import {eimerWerte} from "./Gesteinsraum.js";
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import {toMarshallMarker} from "./Marker.js";
 
 // Erstellen einer Instanz des DRACOLoaders (aktivieren wenn Datei mit Draco Komprimiert)
 const dracoLoader = new DRACOLoader();
@@ -134,6 +135,7 @@ window.addEventListener('click', function(event) {
         if (intersects.length > 0 && intersects[0].object === mixButton) {
             console.log("MixButton wurde angeklickt!"); // Debug-Ausgabe für den Klick
             berechneRohdichte(); // Führe die Berechnung aus
+            toMarshallMarker.visible = true;
         } else {
             console.log("Klick hat den MixButton nicht getroffen.");
         }

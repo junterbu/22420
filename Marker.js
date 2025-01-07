@@ -25,7 +25,7 @@ function createMarker(h, b, pxx, pxz, text, x, y, z, r) {
 }
 
 export const proberaumlagerMarker = createMarker(0.5, 1, 256, 128, "zum Lager", 4, 1.5, -10, 1);
-export const lagerMarker = createMarker(1, 2, 256, 128, "Lager", -12, 10, 4, 0);
+export const lagerMarker = createMarker(1, 2, 256, 128, "Start", -12, 10, 4, 0);
 // export const proberaumMarker = createMarker(1, 2, 256, 128, "Proberaum", 6.3, 10, -15, 0);
 export const leavelagerMarker = createMarker(0.5, 2, 512, 128, "zur Übersicht", -12.5, 1.5, -2, 0);
 export const leaveproberaumMarker = createMarker(0.5, 2, 512, 128, "zur Übersicht", 2, 1.5, -10, 1);
@@ -36,12 +36,11 @@ export const toMarshallMarker = createMarker(0.5, 1, 256, 128, "Marshall", -8, 2
 export const leaveMarshall = createMarker(0.5, 1.5, 512, 128, "zur Übersicht", -3, 1.5, 3, 1.5);
 // export let totalProzentMesh = createMarker(1, 0.5, 256, 128, "Total: 0%", 8, 2, -16.75, -2);
 
-
 export let markers = [lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, leavelagerMarker, leaveMischraum, toMarshallMarker, leaveMarshall];  // Die Marker-Objekte
 export let activeMarkers = [lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, leavelagerMarker, leaveMischraum, toMarshallMarker, leaveMarshall];  // Die aktiven Marker (wird leer sein, wenn in einem Viewpoint)
 
-
-
+lagerproberaumMarker.visible = false;
+toMarshallMarker.visible = false;
 
 // // Marker für den Proberaum zum Lagerraum
 // let proberaumlagerMarkerGeometry = new THREE.PlaneGeometry(1, 0.5);

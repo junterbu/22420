@@ -4,6 +4,8 @@ import * as THREE from "three";
 import {scene} from "./Allgemeines.js"
 import {camera} from "./View_functions.js";
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import {lagerproberaumMarker} from "./Marker.js";
+
 
 // Erstellen einer Instanz des DRACOLoaders
 const dracoLoader = new DRACOLoader();
@@ -47,6 +49,42 @@ export function createEimerLabel(eimerName, position) {
 
     return label;
 }
+
+// Anleitungsschild erstellen
+let anleitungCanvas = document.createElement('canvas');
+anleitungCanvas.width = 640;
+anleitungCanvas.height = 256;
+let anleitungContext = anleitungCanvas.getContext('2d');
+anleitungContext.fillStyle = 'white';
+anleitungContext.font = '30px Arial';
+anleitungContext.textAlign = 'center';
+anleitungContext.textBaseline = 'middle';
+
+// Mehrzeiliger Text
+let textLines = [
+    "Willkommen im virtuellen Labor!",
+    "Klicken Sie auf einen Eimer,",
+    "um ihn in den Proberaum zu verschieben."
+];
+
+// Startposition und Zeilenabstand
+let lineHeight = 40; // Abstand zwischen den Zeilen
+let startY = anleitungCanvas.height / 2 - (lineHeight * (textLines.length - 1)) / 2;
+
+// Text zeilenweise schreiben
+textLines.forEach((line, index) => {
+    anleitungContext.fillText(line, anleitungCanvas.width / 2, startY + index * lineHeight);
+});
+
+let anleitungTexture = new THREE.CanvasTexture(anleitungCanvas);
+let anleitungMaterial = new THREE.MeshBasicMaterial({ map: anleitungTexture });
+let anleitungGeometry = new THREE.PlaneGeometry(3, 1);
+let anleitungMesh = new THREE.Mesh(anleitungGeometry, anleitungMaterial);
+
+anleitungMesh.rotation.y = Math.PI*1;
+// Position des Schilds im Lagerraum
+anleitungMesh.position.set(-13, 1.5, 7);
+scene.add(anleitungMesh);
 
 export let eimerPositionen = [
     { name: 'Füller', position: new THREE.Vector3(-10.9, 1.124, 3.25) },
@@ -125,6 +163,12 @@ window.addEventListener('click', function(event) {
             // Setze den Eimer und das Schildchen unsichtbar im Lager
             eimerMesh.visible = false;
             clickedLabel.visible = false;
+
+            // Anleitung unsichtbar machen
+            anleitungMesh.visible = false;
+
+            // Proberaum Marker sichtbar machen
+            lagerproberaumMarker.visible = true; 
 
             // Bewege das Eimer-Mesh in den Proberaum und mache es dort sichtbar
             let eimerMeshClone = eimerMesh.clone();  // Optional: Klonen, falls du Kopien im Proberaum willst

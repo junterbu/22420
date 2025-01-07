@@ -63,7 +63,44 @@ function updateTotalPercentageDisplay() {
     textureTotalProzent.needsUpdate = true;  // Aktualisiere die Textur im 3D-Raum
 }
 
+// Anleitungsschild für den Proberaum
+let anleitungCanvasProberaum = document.createElement('canvas');
+anleitungCanvasProberaum.width = 640;
+anleitungCanvasProberaum.height = 256;
+let anleitungContextProberaum = anleitungCanvasProberaum.getContext('2d');
 
+// Schrift und mehrzeiliger Text
+anleitungContextProberaum.fillStyle = 'white';
+anleitungContextProberaum.font = '30px Arial';
+anleitungContextProberaum.textAlign = 'center';
+anleitungContextProberaum.textBaseline = 'middle';
+
+// Mehrzeiliger Text für den Proberaum
+let textLinesProberaum = [
+    "Hier können Sie Ihre Mischung erstellen.",
+    "Verwenden Sie den Schieberegler,",
+    "um die Anteile einzustellen",
+    "und die Sieblinie zu erstellen.",
+];
+
+// Text zeilenweise schreiben
+let lineHeightProberaum = 40; // Zeilenabstand
+let startYProberaum = anleitungCanvasProberaum.height / 2 - (lineHeightProberaum * (textLinesProberaum.length - 1)) / 2;
+
+textLinesProberaum.forEach((line, index) => {
+    anleitungContextProberaum.fillText(line, anleitungCanvasProberaum.width / 2, startYProberaum + index * lineHeightProberaum);
+});
+
+// Textur und Material erstellen
+let anleitungTextureProberaum = new THREE.CanvasTexture(anleitungCanvasProberaum);
+let anleitungMaterialProberaum = new THREE.MeshBasicMaterial({ map: anleitungTextureProberaum, transparent: false });
+let anleitungGeometryProberaum = new THREE.PlaneGeometry(2, 0.75); // Größe des Schilds
+let anleitungMeshProberaum = new THREE.Mesh(anleitungGeometryProberaum, anleitungMaterialProberaum);
+
+anleitungMeshProberaum.rotation.y = Math.PI*-2;
+// Position des Schilds im Lagerraum
+anleitungMeshProberaum.position.set(5, 2, -17);
+scene.add(anleitungMeshProberaum);
 
 // Globale Variablen
 export let eimerWerte = {
