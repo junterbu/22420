@@ -98,3 +98,17 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 });
+
+export function exitARView() {
+    // Hintergrund wiederherstellen
+    scene.background = new THREE.Color(0x87ceeb); // Hellblauer Himmel
+
+    // AR-Licht entfernen
+    scene.traverse((child) => {
+        if (child.isLight) {
+            scene.remove(child);
+        }
+    });
+
+    console.log("AR-Ansicht verlassen.");
+}

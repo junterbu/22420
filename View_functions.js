@@ -2,8 +2,9 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {dirLight} from "./Allgemeines.js";
 import {TWEEN} from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';;
-import { isMobileDevice } from './Allgemeines.js';
+import { isMobileDevice, exitARView, scene } from './Allgemeines.js';
 import { lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, toMarshallMarker, leaveMarshall, activeMarkers, markers} from "./Marker.js";
+import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 // Bestimmen Sie das Event basierend auf dem Gerät
 const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
@@ -61,6 +62,35 @@ renderer.antialias = false;
 renderer.outputEncoding = THREE.sRGBEncoding; // Verbessert Farben ohne zusätzlichen Speicherbedarf
 renderer.shadowMap.enabled = false; // Nur aktivieren, wenn Schatten notwendig
 
+// WebXR-Button hinzufügen
+document.body.appendChild(VRButton.createButton(renderer));
+
+// Funktion, um AR zu starten
+export function startARView() {
+    // WebXR für den Renderer aktivieren
+    renderer.xr.enabled = true;
+
+    // Hintergrund entfernen
+    scene.background = null;
+
+    // Spezifisches AR-Licht hinzufügen
+    let arLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+    arLight.position.set(0.5, 1, 0.25);
+    scene.add(arLight);
+
+    // Position der Kamera für AR setzen
+    camera.position.set(0, 1.6, 0); // Durchschnittliche Augenhöhe
+    camera.lookAt(0, 0, -1);
+
+    // Animation starten
+    renderer.setAnimationLoop(() => {
+        renderer.render(scene, camera);
+    });
+
+    console.log("AR-Ansicht gestartet.");
+}
+
+
 export let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(20, 20, 5);
 
@@ -110,7 +140,9 @@ export function goToLager() {
     controls.enableZoom = false;
     controls.enablePan = false;
     controls.enableRotate = true;
-    
+    if (isMobileDevice()) {
+        exitARView();
+    }
     // Blende den `uiContainer`-Schieberegler aus
     document.getElementById('uiContainer').style.display = 'none';
 }
@@ -284,6 +316,10 @@ export function leaveView() {
 
     // Blende den `bitumenUI`-Schieberegler aus
     document.getElementById('bitumenUI').style.display = 'none';
+
+    if (isMobileDevice()) {
+        exitARView();
+    }
 }
 
 export function toMarshall() {
