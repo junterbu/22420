@@ -5,6 +5,9 @@ import { scene } from './Allgemeines.js';
 import { renderer, camera } from './View_functions.js';
 import { Rohdichte, bitumenAnteil } from './Mischraum.js';
 import { eimerWerte } from './Gesteinsraum.js';
+import { isMobileDevice } from './Allgemeines.js';
+
+const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
 
 const loader = new GLTFLoader();
 
@@ -52,21 +55,23 @@ function loadMarshallModel() {
 
                 // Überprüfen, ob der Button gefunden wurde
                 if (buttonOn) {
-                    window.addEventListener('click', (event) => {
-                        const raycaster = new THREE.Raycaster();
+                    window.addEventListener(inputEvent, (event) => {
                         const mouse = new THREE.Vector2();
-
-                        // Mausposition normalisieren
-                        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
+                        if (inputEvent === 'touchstart') {
+                            const touch = event.touches[0];
+                            mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+                            mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+                        } else {
+                            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                        }
+                    
                         raycaster.setFromCamera(mouse, camera);
-
-                        // Prüfen, ob der Button getroffen wird
+                    
                         const intersects = raycaster.intersectObject(buttonOn, true);
                         if (intersects.length > 0) {
                             console.log('Button "button_on" wurde angeklickt!');
-                            playAnimation(); // Animation abspielen
+                            playAnimation();
                         }
                     });
                 } else {

@@ -3,7 +3,9 @@ import {scene} from "./Allgemeines.js"
 import {schildchenProberaum} from "./Lager.js";
 import {goToMischraum, camera,} from "./View_functions.js";
 import {toMischraumMarker} from "./Marker.js";
-// import { eimerWerte, currentEimer } from "./Daten.js";
+import { isMobileDevice } from './Allgemeines.js';
+
+const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
 
 let mischungsGrenzen = {
     "Bitte klicken": {
@@ -38,9 +40,16 @@ let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
 
 // Raycasting für die Eimer-Labels im Proberaum (Prozentsatzauswahl)
-window.addEventListener('click', function(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+window.addEventListener(inputEvent, function(event) {
+    const mouse = new THREE.Vector2();
+    if (inputEvent === 'touchstart') {
+        const touch = event.touches[0];
+        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+    } else {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
 
     raycaster.setFromCamera(mouse, camera);
 
@@ -399,9 +408,16 @@ function SieblinienGrenzanalyse(sieblinie) {
     return true; // Sieblinie liegt innerhalb der Grenzen
 }
 
-window.addEventListener('click', function(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+window.addEventListener(inputEvent, function(event) {
+    const mouse = new THREE.Vector2();
+    if (inputEvent === 'touchstart') {
+        const touch = event.touches[0];
+        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+    } else {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
 
     raycaster.setFromCamera(mouse, camera);
 
@@ -452,12 +468,17 @@ scene.add(selectionPlane);
 // Initialer Text auf der Plane
 updatePlaneLabel("Bitte klicken");
 
-window.addEventListener('click', (event) => {
-    // Mausposition normalisieren
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+window.addEventListener(inputEvent, function(event) {
+    const mouse = new THREE.Vector2();
+    if (inputEvent === 'touchstart') {
+        const touch = event.touches[0];
+        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+    } else {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
 
-    // Raycaster mit Kamera und Mausposition einstellen
     raycaster.setFromCamera(mouse, camera);
 
     // Prüfen, ob die Plane getroffen wurde

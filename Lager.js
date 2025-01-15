@@ -5,7 +5,9 @@ import {scene} from "./Allgemeines.js"
 import {camera} from "./View_functions.js";
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import {lagerproberaumMarker} from "./Marker.js";
+import { isMobileDevice } from './Allgemeines.js';
 
+const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
 
 // Erstellen einer Instanz des DRACOLoaders
 const dracoLoader = new DRACOLoader();
@@ -139,12 +141,18 @@ loader.load('Assets/Eimer.glb', function(gltf) {
 });
 
 // Raycasting-Interaktion hinzufügen: Eimer vom Lager in den Proberaum verschieben
-window.addEventListener('click', function(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+window.addEventListener(inputEvent, function(event) {
+    const mouse = new THREE.Vector2();
+    if (inputEvent === 'touchstart') {
+        const touch = event.touches[0];
+        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+    } else {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
 
     raycaster.setFromCamera(mouse, camera);
-
     // Prüfe, ob ein Schildchen im Lager angeklickt wurde
     let intersects = raycaster.intersectObjects(schildchen);  // `schildchen` bezieht sich auf die Lager-Schilder
 
