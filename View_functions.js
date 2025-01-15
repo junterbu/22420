@@ -2,7 +2,57 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {dirLight} from "./Allgemeines.js";
 import {TWEEN} from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';;
+import { isMobileDevice } from './Allgemeines.js';
+import { lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, toMarshallMarker, leaveMarshall, activeMarkers, markers} from "./Marker.js";
 
+// Bestimmen Sie das Event basierend auf dem Gerät
+const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
+
+window.addEventListener(inputEvent, function (event) {
+    const mouse = new THREE.Vector2();
+
+    if (inputEvent === 'touchstart') {
+        // Touch-Eingabe verarbeiten
+        const touch = event.touches[0];
+        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+    } else {
+        // Maus-Eingabe verarbeiten
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+
+    // Raycaster einstellen
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    // Marker überprüfen
+    const intersects = raycaster.intersectObjects(activeMarkers);
+    if (intersects.length > 0) {
+        const clickedMarker = intersects[0].object;
+        handleMarkerClick(clickedMarker);
+    }
+});
+
+function handleMarkerClick(marker) {
+    if (marker === lagerMarker) {
+        goToLager();
+    } else if (marker === proberaumlagerMarker) {
+        fromProberaumtoLager();
+    } else if (marker === lagerproberaumMarker) {
+        fromLagertoProberaum();
+    } else if (marker === leaveproberaumMarker) {
+        leaveView();
+    } else if (marker === leavelagerMarker) {
+        leaveView();
+    } else if (marker === leaveMischraum) {
+        leaveView();
+    } else if (marker === toMarshallMarker) {
+        toMarshall();
+    } else if (marker === leaveMarshall) {
+        leaveView();
+    } 
+}
 
 export let renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
