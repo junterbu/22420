@@ -18,7 +18,7 @@ export let scene = new THREE.Scene();
 const basicMaterial = new THREE.MeshBasicMaterial({ color: 0x808080 });
 
 // Licht hinzufügen
-export let ambientLight = new THREE.AmbientLight(0xffffff, 0.6);  // Weiches Umgebungslicht
+export let ambientLight = new THREE.AmbientLight(0xffffff, 2.5);  // Weiches Umgebungslicht
 scene.add(ambientLight);
 
 //let directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);  // Richtungslicht
@@ -26,17 +26,21 @@ scene.add(ambientLight);
 //scene.add(directionalLight);
 
 // Globale Beleuchtung
-let hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+let hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 2.5);
 hemiLight.position.set(0, 20, 0);
 scene.add(hemiLight);
 
 // Richtungslicht mit Schatten
-export let dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
-dirLight.position.set(5, 10, 7.5);
+export let dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+dirLight.position.set(5, 20, 7.5);
 dirLight.castShadow = false;  // Schatten aktivieren
 dirLight.shadow.mapSize.width = 512;  // Schattenauflösung
 dirLight.shadow.mapSize.height = 512;
 scene.add(dirLight);
+
+const pointLight = new THREE.PointLight(0xffffff, 1, 50); // Weißes Punktlicht
+pointLight.position.set(-12.5, 10, 4); // Position über der Szene
+scene.add(pointLight);
 
 // const hdrLoader = new RGBELoader(); // Lade HDR-Umgebungstexturen new GLTFLoader();
 // hdrLoader.load('Assets/rosendal_park_sunset_puresky_4k.hdr', function(texture) {
@@ -69,32 +73,13 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 //renderer.setAntialias();
 
 // GLTFLoader, um Modelle (Gebäude, Eimer, Siebturm) zu laden
-const loader = new GLTFLoader();
-loader.setDRACOLoader(dracoLoader); //nur wenn datei mit Draco komprimiert!
-loader.setMeshoptDecoder(MeshoptDecoder);
+export const loader_overview = new GLTFLoader();
+loader_overview.setDRACOLoader(dracoLoader); //nur wenn datei mit Draco komprimiert!
+loader_overview.setMeshoptDecoder(MeshoptDecoder);
 
 // Lade das Gebäudemodell
-loader.load('Assets/Gesamtmodell-v1.glb', function(gltf) {
-    const necessaryNodes = [];
-    const geometries = {};
-    const materials = {};
-
-    gltf.scene.traverse((node) => {
-        if (node.isMesh && node.name.startsWith('Cylinder')) {
-            if (!geometries[node.name]) {
-                geometries[node.name] = node.geometry;
-                materials[node.name] = node.material;
-            }
-            const instance = new THREE.Mesh(geometries[node.name], materials[node.name]);
-            instance.position.copy(node.position);
-            instance.rotation.copy(node.rotation);
-            instance.scale.copy(node.scale);
-            scene.add(instance);
-        }
-    });
-    const optimizedGroup = new THREE.Group();
-    necessaryNodes.forEach(node => optimizedGroup.add(node));
-    scene.add(optimizedGroup);
+loader_overview.load('Assets/overview-v1.glb', function(gltf) {
+    scene.add(gltf.scene)
 }, undefined, function(error) {
     console.error('Fehler beim Laden des GLTF-Modells:', error);
 });

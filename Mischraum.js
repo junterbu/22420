@@ -101,9 +101,8 @@ loader.setDRACOLoader(dracoLoader); //nur wenn datei mit Draco komprimiert!
 loader.setMeshoptDecoder(MeshoptDecoder);
 
 // Laden des GLTF-Modells und Identifizieren des Knopfes
-loader.load('Assets/Gesamtmodell-v1.glb', function(loadedGltf) {
-    scene.add(loadedGltf.scene);
-    
+loader.load('Assets/Mixbutton.glb', function(loadedGltf) {
+    scene.add(loadedGltf.scene)
     // Suche den Knopf in der GLTF-Szene und gebe alle Namen der gefundenen Objekte aus
     loadedGltf.scene.traverse(function(child) {
         if (child.isMesh) {

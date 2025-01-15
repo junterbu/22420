@@ -116,9 +116,8 @@ export let eimerMeshes = [];  // Liste für die Eimer (Mesh-Objekte)
 export let schildchenProberaum = [];
 
 // Lade das GLTF-Modell (das deine Eimer enthält)
-loader.load('Assets/Gesamtmodell-v1.glb', function(gltf) {
-    scene.add(gltf.scene);  // Füge das gesamte GLTF-Modell der Szene hinzu
-
+loader.load('Assets/Eimer.glb', function(gltf) {
+    scene.add(gltf.scene)
     // Annahme: Die Eimer sind in der Szene als separate Objekte (z.B. durch Namen)
     let currentEimerIndex = 0;
     // Iteriere durch alle Objekte in der GLTF-Szene und finde die Eimer

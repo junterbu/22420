@@ -69,27 +69,37 @@ async function optimizeGLB(inputFile, outputFile, options = {}) {
             }
         });
 
+        protectedNodes.forEach(node => {
+            node.setTranslation([node.getTranslation()]);
+            node.setRotation([node.getRotation()]);
+            node.setScale([node.getScale()]);
+        });
+
+        protectedNodes.forEach(node => {
+            scene.removeChild(node);
+        });
+       
         // Optimierung anwenden (ProtectedGroup bleibt unberührt)
         console.log('Optimiere Datei...');
         await document.transform(
-            // dedup(),
-            // instance({min: 5}),
-            // flatten(),
+            dedup(),
+            instance({min: 5}),
+            flatten(),
             // join(),
             // weld({ tolerance: options.weldTolerance }),
-            // // prune(),
-            // simplify({
-            //     simplifier: MeshoptSimplifier,
-            //     ratio: 0.0,
-            //     error: 0.001,
-            //     lockBorder: true,
-            // }),
+            prune(),
+            simplify({
+                 simplifier: MeshoptSimplifier,
+                ratio: 0.0,
+                error: 0.001,
+                lockBorder: true,
+            }),
             // sparse({ ratio: 0.2 }),
-            // textureCompress({
-            //     encoder: sharp,
-            //     targetFormat: 'webp',
-            //     resize: [1024, 1024],
-            // }),
+            textureCompress({
+                encoder: sharp,
+                targetFormat: 'webp',
+                resize: [1024, 1024],
+            }),
             draco(),
         );
 
@@ -97,8 +107,8 @@ async function optimizeGLB(inputFile, outputFile, options = {}) {
         protectedGroup.listChildren().forEach(node => {
             scene.addChild(node);
         });
-        scene.removeChild(protectedGroup);
 
+        scene.removeChild(protectedGroup);
         // Optimierte Datei speichern
         await io.write(outputFile, document);
         console.log(`Optimierte Datei wurde gespeichert: ${outputFile}`);
