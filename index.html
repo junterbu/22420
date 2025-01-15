@@ -66,6 +66,15 @@
         import {proberaumPositionen, schildchen, eimerMeshes, eimerPositionen, createEimerLabel, loader} from "./Lager.js";
         import {scene} from "./Allgemeines.js"
         import {eimerWerte} from "./Gesteinsraum.js"
+        import { isMobileDevice } from './Allgemeines.js';
+
+
+        // Dynamische Klasse für Body
+        if (isMobileDevice()) {
+            document.body.classList.add('mobile');
+        } else {
+            document.body.classList.add('desktop');
+        }
 
         //Marker aus Marker.js hinzufügen
         scene.add(proberaumlagerMarker);
@@ -84,40 +93,6 @@
         // Raycaster und Mauskoordinaten definieren
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
-
-        // Event-Listener für Mausklicks
-        window.addEventListener('click', function(event) {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-
-            // Prüfen, ob der Raycaster auf den Marker trifft
-            let intersects = raycaster.intersectObjects(activeMarkers);
-
-            if (intersects.length > 0) {
-                let clickedMarker = intersects[0].object;
-                
-                if (clickedMarker === lagerMarker) {
-                    // Wenn auf den Lagerraum-Marker geklickt wird
-                    goToLager();
-                } else if (clickedMarker === proberaumlagerMarker){
-                    fromProberaumtoLager();
-                } else if (clickedMarker === lagerproberaumMarker) {
-                    fromLagertoProberaum();
-                } else if (clickedMarker === leaveproberaumMarker) {
-                    leaveView();
-                } else if (clickedMarker === leavelagerMarker) {
-                    leaveView();
-                } else if (clickedMarker === leaveMischraum) {
-                    leaveView();
-                } else if (clickedMarker === toMarshallMarker) {
-                    toMarshall();
-                } else if (clickedMarker === leaveMarshall) {
-                    leaveView();
-                } 
-            }
-        });
 
         // Animations-Loop
         function animate() {

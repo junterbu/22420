@@ -7,6 +7,10 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { camera, renderer} from "./View_functions.js";
 import {TWEEN} from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';
 
+// Geräteerkennung
+export function isMobileDevice() {
+    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
 
 // Erstellen einer Instanz des DRACOLoaders (aktivieren wenn Datei mit Draco Komprimiert)
 const dracoLoader = new DRACOLoader();
