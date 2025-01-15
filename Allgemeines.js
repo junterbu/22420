@@ -9,7 +9,9 @@ import {TWEEN} from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.mod
 
 // Geräteerkennung
 export function isMobileDevice() {
-    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    console.log(isMobile ? "Mobiles Gerät erkannt." : "Desktop-Gerät erkannt.");
+    return isMobile;
 }
 
 // Erstellen einer Instanz des DRACOLoaders (aktivieren wenn Datei mit Draco Komprimiert)
