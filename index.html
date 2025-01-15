@@ -84,17 +84,24 @@
         import {proberaumPositionen, schildchen, eimerMeshes, eimerPositionen, createEimerLabel, loader} from "./Lager.js";
         import {scene} from "./Allgemeines.js"
         import {eimerWerte} from "./Gesteinsraum.js"
-        import { isMobileDevice } from './Allgemeines.js';
-        import { startARView } from './View_functions.js';
+        import { isMobileDevice, isIOSDevice } from './Allgemeines.js';
+        import { startARView, startARMode } from './View_functions.js';
+
 
         // Button nur anzeigen, wenn ein mobiles Gerät erkannt wird
         if (isMobileDevice()) {
             document.getElementById('startAR').style.display = 'block';
 
-            // Event-Listener für den AR-Button hinzufügen
-            document.getElementById('startAR').addEventListener('click', () => {
-                startARView();
-            });
+            // Event-Listener für den AR-Button basierend auf Gerätetyp
+            if (isIOSDevice()) {
+                document.getElementById('startAR').addEventListener('click', () => {
+                    startARMode(); // iOS: AR.js verwenden
+                });
+            } else {
+                document.getElementById('startAR').addEventListener('click', () => {
+                    startARView(); // Andere Geräte: WebXR verwenden
+                });
+            }
         }
 
 
