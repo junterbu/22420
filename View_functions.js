@@ -390,6 +390,25 @@ function updateQuality(level) {
     console.log(`Renderqualität geändert: Level ${level}`);
 }
 
+window.addEventListener('resize', onWindowResize);
+
+function onWindowResize() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // Kamera-Aspektverhältnis aktualisieren
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+
+    // Renderer-Größe anpassen
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    console.log(`Fenstergröße angepasst: ${width}x${height}`);
+}
+
+// Initiale Anpassung beim Start
+onWindowResize();
 
 
 measureFrameRate();
