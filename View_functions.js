@@ -153,7 +153,8 @@ export function fromProberaumtoLager() {
     animateAlongPath();
 
     // Schieberegler einblenden (optional)
-    document.getElementById('uiContainer').style.display = 'none';
+    document.getElementBy
+    Id('uiContainer').style.display = 'none';
 }
 
 export function goToMischraum() {
