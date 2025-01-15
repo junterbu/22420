@@ -121,25 +121,30 @@ loader.load('Assets/Mixbutton.glb', function(loadedGltf) {
     console.error("Fehler beim Laden des GLTF-Modells:", error);
 });
 
-// Raycasting-Event für den Klick auf den Knopf im GLTF-Modell
-window.addEventListener('click', function(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+import { isMobileDevice } from './Allgemeines.js';
+
+const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
+
+window.addEventListener(inputEvent, function(event) {
+    const mouse = new THREE.Vector2();
+    if (inputEvent === 'touchstart') {
+        const touch = event.touches[0];
+        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+    } else {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
 
     raycaster.setFromCamera(mouse, camera);
 
-    // Prüfen, ob der Raycaster den Knopf am Gerät trifft
-    if (mixButton) {  // Sicherstellen, dass mixButton definiert ist
+    if (mixButton) {
         let intersects = raycaster.intersectObjects([mixButton]);
-        if (intersects.length > 0 && intersects[0].object === mixButton) {
-            console.log("MixButton wurde angeklickt!"); // Debug-Ausgabe für den Klick
-            berechneRohdichte(); // Führe die Berechnung aus
+        if (intersects.length > 0) {
+            console.log("MixButton wurde angeklickt!");
+            berechneRohdichte();
             toMarshallMarker.visible = true;
-        } else {
-            console.log("Klick hat den MixButton nicht getroffen.");
         }
-    } else {
-        console.warn("MixButton ist noch nicht geladen oder nicht definiert.");
     }
 });
 
