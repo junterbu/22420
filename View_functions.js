@@ -65,24 +65,18 @@ renderer.shadowMap.enabled = false; // Nur aktivieren, wenn Schatten notwendig
 // WebXR-Button hinzufügen
 document.body.appendChild(VRButton.createButton(renderer));
 
-// Funktion, um AR zu starten
+// AR View für non IOS
 export function startARView() {
-    // WebXR für den Renderer aktivieren
     renderer.xr.enabled = true;
-
-    // Hintergrund entfernen
     scene.background = null;
 
-    // Spezifisches AR-Licht hinzufügen
     let arLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
     arLight.position.set(0.5, 1, 0.25);
     scene.add(arLight);
 
-    // Position der Kamera für AR setzen
-    camera.position.set(0, 1.6, 0); // Durchschnittliche Augenhöhe
+    camera.position.set(20, 20, 5); // Durchschnittliche Augenhöhe
     camera.lookAt(0, 0, -1);
 
-    // Animation starten
     renderer.setAnimationLoop(() => {
         renderer.render(scene, camera);
     });
@@ -90,6 +84,17 @@ export function startARView() {
     console.log("AR-Ansicht gestartet.");
 }
 
+// AR View für IOS
+export function startARMode() {
+    console.log("AR-Modus gestartet. Wechsel zu AR.js-Ansicht.");
+
+    // Wechsel zur AR.js-Szene
+    document.body.innerHTML = `
+    <a-scene embedded arjs>
+        <a-box position="20 20 5" material="color: red;"></a-box>
+        <a-marker-camera preset="hiro"></a-marker-camera>
+    </a-scene>`;
+}
 
 export let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(20, 20, 5);
