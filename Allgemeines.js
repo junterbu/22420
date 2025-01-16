@@ -14,9 +14,9 @@ export function isMobileDevice() {
     return isMobile;
 }
 
-export function isIOSDevice() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-}
+// export function isIOSDevice() {
+//     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+// }
 
 // Erstellen einer Instanz des DRACOLoaders (aktivieren wenn Datei mit Draco Komprimiert)
 const dracoLoader = new DRACOLoader();
@@ -103,16 +103,16 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 });
 
-export function exitARView() {
-    // Hintergrund wiederherstellen
-    scene.background = new THREE.Color(0x87ceeb); // Hellblauer Himmel
+// export function exitARView() {
+//     // Hintergrund wiederherstellen
+//     scene.background = new THREE.Color(0x87ceeb); // Hellblauer Himmel
 
-    // AR-Licht entfernen
-    scene.traverse((child) => {
-        if (child.isLight) {
-            scene.remove(child);
-        }
-    });
+//     // AR-Licht entfernen
+//     scene.traverse((child) => {
+//         if (child.isLight) {
+//             scene.remove(child);
+//         }
+//     });
 
-    console.log("AR-Ansicht verlassen.");
-}
+//     console.log("AR-Ansicht verlassen.");
+// }
