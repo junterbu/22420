@@ -28,7 +28,7 @@ document.getElementById('bitumenRange').addEventListener('input', function() {
 });
 
 //Anzeige Rohdichte
-export let Rohdichte = 0;  // Neue Variable für die Rohdichte
+export let Rohdichte = [null, null, null];  // Neue Variable für die Rohdichte
 
 // Erstelle ein Canvas für die 3D-Anzeige der Rohdichte
 let canvasRohdichte = document.createElement('canvas');
@@ -65,31 +65,44 @@ RohdichteMesh.rotation.y = Math.PI*2.5;
 RohdichteMesh.position.set(-9.75, 2.1, 5.25); 
 scene.add(RohdichteMesh);
 
+
 // Funktion zur dynamischen Aktualisierung der Rohdichte im 3D-Text
 function updateRohdichteDisplay() {
     contextRohdichte.clearRect(0, 0, canvasRohdichte.width, canvasRohdichte.height);
-    contextRohdichte.fillText(`Rohdichte: ${Rohdichte.toFixed(3)} g/cm³`, canvasRohdichte.width / 2, canvasRohdichte.height / 2);
-    textureRohdichte.needsUpdate = true;  // Aktualisiere die Textur im 3D-Raum
+    for (let i = 0; i < Rohdichten.length; i++) {
+        if (Rohdichten[i] !== null) {
+            contextRohdichte.fillText(`Rohdichte ${i + 1}: ${Rohdichten[i].toFixed(3)} g/cm³`, canvasRohdichte.width / 2, (i + 1) * 80);
+        }
+    }
+    textureRohdichte.needsUpdate = true;
 }
 
 
 // Funktion zur Berechnung der Rohdichte des Materials
 function berechneRohdichte() {
-    let bitumenAnteil = parseFloat(document.getElementById('bitumenRange').value); // Bitumenanteil aus dem Schieberegler
-    let eimerWertFuller = eimerWerte['Füller']; // Prozentwert aus dem Füller-Eimer
-    
-    let Faktor = 100/(100-bitumenAnteil)
-    let MAG = (100-eimerWertFuller)/Faktor
-    let MAF = eimerWertFuller/Faktor
+    if (currentStep >= 3) {
+        console.warn("Alle drei Rohdichten wurden bereits berechnet.");
+        return;
+    }
 
-    // Berechnung der Rohdichte mit angepasster Formel
+    let eimerWertFuller = eimerWerte['Füller'];
+    let Faktor = 100 / (100 - bitumenAnteil);
+    let MAG = (100 - eimerWertFuller) / Faktor;
+    let MAF = eimerWertFuller / Faktor;
+
     let dichteGesamt = (dichteBitumen * bitumenAnteil +
                         dichteFuller * MAF +
                         dichteMaterial * MAG) / 100;
-    
-    Rohdichte = dichteGesamt
-    updateRohdichteDisplay()
+
+    Rohdichten[currentStep] = dichteGesamt;
+    updateRohdichteDisplay();
+    currentStep++;
 }
+
+document.getElementById('bitumenRange').addEventListener('input', function() {
+    bitumenAnteil = parseFloat(this.value);
+    document.getElementById('bitumenValue').textContent = `${bitumenAnteil}%`;
+});
 
 // Knopf-Klick-Ereignis zum Berechnen der Rohdichte
 //document.getElementById('calculateDensity').addEventListener('click', berechneRohdichte); //nur notwendig wenn ein extra Button zur Berechnung angesteuert wird. 

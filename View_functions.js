@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {dirLight} from "./Allgemeines.js";
 import {TWEEN} from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';;
-import { isMobileDevice, exitARView, scene } from './Allgemeines.js';
+import { isMobileDevice, scene } from './Allgemeines.js';
 import { lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, toMarshallMarker, leaveMarshall, activeMarkers, markers} from "./Marker.js";
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 
@@ -84,17 +84,17 @@ export function startARView() {
     console.log("AR-Ansicht gestartet.");
 }
 
-// AR View für IOS
-export function startARMode() {
-    console.log("AR-Modus gestartet. Wechsel zu AR.js-Ansicht.");
+// // AR View für IOS
+// export function startARMode() {
+//     console.log("AR-Modus gestartet. Wechsel zu AR.js-Ansicht.");
 
-    // Wechsel zur AR.js-Szene
-    document.body.innerHTML = `
-    <a-scene embedded arjs>
-        <a-box position="20 20 5" material="color: red;"></a-box>
-        <a-marker-camera preset="hiro"></a-marker-camera>
-    </a-scene>`;
-}
+//     // Wechsel zur AR.js-Szene
+//     document.body.innerHTML = `
+//     <a-scene embedded arjs>
+//         <a-box position="20 20 5" material="color: red;"></a-box>
+//         <a-marker-camera preset="hiro"></a-marker-camera>
+//     </a-scene>`;
+// }
 
 export let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(20, 20, 5);
@@ -145,9 +145,9 @@ export function goToLager() {
     controls.enableZoom = false;
     controls.enablePan = false;
     controls.enableRotate = true;
-    if (isMobileDevice()) {
-        exitARView();
-    }
+    // if (isMobileDevice()) {
+    //     exitARView();
+    // }
     // Blende den `uiContainer`-Schieberegler aus
     document.getElementById('uiContainer').style.display = 'none';
 }
@@ -322,9 +322,9 @@ export function leaveView() {
     // Blende den `bitumenUI`-Schieberegler aus
     document.getElementById('bitumenUI').style.display = 'none';
 
-    if (isMobileDevice()) {
-        exitARView();
-    }
+    // if (isMobileDevice()) {
+    //     exitARView();
+    // }
 }
 
 export function toMarshall() {
