@@ -28,14 +28,14 @@ document.getElementById('bitumenRange').addEventListener('input', function() {
 });
 
 //Anzeige Rohdichte
-export let Rohdichte = [null, null, null];  // Neue Variable für die Rohdichte
+export let Rohdichten = [null, null, null];  // Neue Variable für die Rohdichte
 
 // Erstelle ein Canvas für die 3D-Anzeige der Rohdichte
 let canvasRohdichte = document.createElement('canvas');
-canvasRohdichte.width = 768;
-canvasRohdichte.height = 128;
+canvasRohdichte.width = 512;
+canvasRohdichte.height = 192;
 let contextRohdichte = canvasRohdichte.getContext('2d');
-contextRohdichte.font = '50px Arial';
+contextRohdichte.font = '30px Arial';
 contextRohdichte.fillStyle = 'white';
 contextRohdichte.textAlign = 'center';
 contextRohdichte.textBaseline = 'middle';
@@ -57,7 +57,7 @@ let textureRohdichte = new THREE.CanvasTexture(canvasRohdichte);
 let materialRohdichte = new THREE.MeshStandardMaterial({ map: textureRohdichte, side: THREE.DoubleSide });
 
 // Erstelle ein Geometrieobjekt und verbinde es mit dem Material
-let RohdichteGeometry = new THREE.PlaneGeometry(2, 0.5);  // Größe des 3D-Texts
+let RohdichteGeometry = new THREE.PlaneGeometry(1.25, 0.5); // Größeres Plane für alle drei Werte
 let RohdichteMesh = new THREE.Mesh(RohdichteGeometry, materialRohdichte);
 
 // Platziere den Text über einem Marker
@@ -69,19 +69,24 @@ scene.add(RohdichteMesh);
 // Funktion zur dynamischen Aktualisierung der Rohdichte im 3D-Text
 function updateRohdichteDisplay() {
     contextRohdichte.clearRect(0, 0, canvasRohdichte.width, canvasRohdichte.height);
+    let startX = 250; // Abstand von der linken Seite
+    let startY = 50; // Abstand von oben für die erste Zeile
+    let lineHeight = 50; // Abstand zwischen den Zeilen
+
     for (let i = 0; i < Rohdichten.length; i++) {
         if (Rohdichten[i] !== null) {
-            contextRohdichte.fillText(`Rohdichte ${i + 1}: ${Rohdichten[i].toFixed(3)} g/cm³`, canvasRohdichte.width / 2, (i + 1) * 80);
+            contextRohdichte.fillText(`Rohdichte ${i + 1}: ${Rohdichten[i].toFixed(3)} g/cm³`, startX, startY + i * lineHeight);
         }
     }
     textureRohdichte.needsUpdate = true;
 }
 
-
+let currentStep = 0;
 // Funktion zur Berechnung der Rohdichte des Materials
 function berechneRohdichte() {
     if (currentStep >= 3) {
         console.warn("Alle drei Rohdichten wurden bereits berechnet.");
+        alert("Alle drei Rohdichten wurden bereits berechnet.");
         return;
     }
 
@@ -159,11 +164,4 @@ window.addEventListener(inputEvent, function(event) {
             toMarshallMarker.visible = true;
         }
     }
-});
-
-window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
 });

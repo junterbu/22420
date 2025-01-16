@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { scene } from './Allgemeines.js';
 import { renderer, camera } from './View_functions.js';
-import { Rohdichte, bitumenAnteil } from './Mischraum.js';
+import { Rohdichten, bitumenAnteil } from './Mischraum.js';
 import { eimerWerte } from './Gesteinsraum.js';
 import { isMobileDevice } from './Allgemeines.js';
 
@@ -73,6 +73,7 @@ function loadMarshallModel() {
                         if (intersects.length > 0) {
                             console.log('Button "button_on" wurde angeklickt!');
                             playAnimation();
+                            animate();
                         }
                     });
                 } else {
@@ -88,7 +89,7 @@ function loadMarshallModel() {
 }
 
 let animationCompleted = false; // Variable zur Verfolgung des Animationsstatus
-
+let raumdichten = [null,null,null];
 // Update-Funktion für Animation und Sichtbarkeitssteuerung
 function animate() {
     requestAnimationFrame(animate);
@@ -110,13 +111,26 @@ function animate() {
 
         if (action && action.isRunning() === false && !animationCompleted) {
             animationCompleted = true; // Setze den Status auf abgeschlossen
-            const rhoRM = Rohdichte;
+        
+            // Berechne drei Raumdichten basierend auf den drei Rohdichten
             const bitumenGehalt = parseFloat(bitumenAnteil) || 0;
-            const raumdichte = berechneRaumdichte(rhoRM, bitumenGehalt, eimerWerte);
-
-            if (raumdichte) {
-                updatePlaneText(`Raumdichte: ${raumdichte.toFixed(3)} g/cm³`);
+            for (let i=0; i<Rohdichten.length; i++){
+                raumdichten[i] = berechneRaumdichte(Rohdichten[i], bitumenGehalt, eimerWerte)
             }
+            console.log(raumdichten)
+            console.log(Rohdichten)
+            context.clearRect(0, 0, canvas.width, canvas.height); // Lösche den alten Text
+            let startX = 250;
+            let startY = 50;
+            let lineHeight = 50;
+
+            for (let i=0; i<raumdichten.length; i++){
+                if (raumdichten[i] !== null){
+                    context.fillText(`Raumdichte ${i + 1}: ${raumdichten[i].toFixed(3)} g/cm³`, startX, startY + i * lineHeight)
+                } else {
+                    context.fillText("Bitte Bitumengehalt oder Eimer auswählen!", canvas.width / 2, canvas.height / 2)
+                }
+            } 
         }
     }
 
@@ -126,7 +140,6 @@ function animate() {
 // Modul initialisieren
 function init() {
     loadMarshallModel();
-    animate();
 }
 
 init();
@@ -197,9 +210,8 @@ function berechneRaumdichte(rhoRM, bitumenAnteil, eimerWerte) {
     let H_bit = (hohlraumgehalt/100) -  (HFB/100) * (hohlraumgehalt/100)
 
     console.log(HFB, H_bit)
-
     // Berechnung der Raumdichte
-    const rhoA = rhoRM - rhoRM * H_bit
+    let rhoA = rhoRM - rhoRM * H_bit
     return rhoA;
 }
 
@@ -216,14 +228,18 @@ context.fillText('Marshall-Verdichter starten', canvas.width / 2, canvas.height 
 
 let texture = new THREE.CanvasTexture(canvas);
 let material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-let planeGeometry = new THREE.PlaneGeometry(1, 0.5); // Breite und Höhe der Plane
+let planeGeometry = new THREE.PlaneGeometry(1.25, 0.75); // Breite und Höhe der Plane
 let planeMesh = new THREE.Mesh(planeGeometry, material);
 planeMesh.position.set(-7, 1.5, 1); // Setze die Position im Raum
 scene.add(planeMesh);
 
 function updatePlaneText(newText) {
     context.clearRect(0, 0, canvas.width, canvas.height); // Lösche den alten Text
-    context.fillText(newText, canvas.width / 2, canvas.height / 2); // Zeichne den neuen Text
+    context.font = '30px Arial'; // Anpassung für bessere Lesbarkeit
+    let lines = newText.split('\n');
+    lines.forEach((line, index) => {
+        context.fillText(line, canvas.width / 2, (canvas.height / 4) * (index + 1));
+    });
     texture.needsUpdate = true; // Aktualisiere die Textur
 }
 
