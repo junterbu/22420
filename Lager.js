@@ -2,7 +2,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import * as THREE from "three";
 import {scene} from "./Allgemeines.js"
-import {camera} from "./View_functions.js";
+import {camera, currentRoom} from "./View_functions.js";
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import {lagerproberaumMarker} from "./Marker.js";
 import { isMobileDevice } from './Allgemeines.js';
@@ -65,8 +65,8 @@ anleitungContext.textBaseline = 'middle';
 // Mehrzeiliger Text
 let textLines = [
     "Willkommen im virtuellen Labor!",
-    "Klicken Sie auf einen Eimer,",
-    "um ihn in den Proberaum zu verschieben."
+    "Klicken Sie auf die Eimer,",
+    "um sie in den Gesteinsraum zu verschieben."
 ];
 
 // Startposition und Zeilenabstand
@@ -140,7 +140,6 @@ loader.load('Assets/Eimer.glb', function(gltf) {
     });
 });
 
-// Raycasting-Interaktion hinzufügen: Eimer vom Lager in den Proberaum verschieben
 window.addEventListener(inputEvent, function(event) {
     const mouse = new THREE.Vector2();
     if (inputEvent === 'touchstart') {
@@ -153,51 +152,46 @@ window.addEventListener(inputEvent, function(event) {
     }
 
     raycaster.setFromCamera(mouse, camera);
-    // Prüfe, ob ein Schildchen im Lager angeklickt wurde
-    let intersects = raycaster.intersectObjects(schildchen);  // `schildchen` bezieht sich auf die Lager-Schilder
 
-    if (intersects.length > 0) {
-        let clickedLabel = intersects[0].object;
-        console.log(`Schild im Lager angeklickt: ${clickedLabel.name}`);  // Zeigt den Namen des geklickten Schilds an
+    // Nur Schilder im Lager und wenn im Lager
+    if (currentRoom === 'Lager') { // Überprüfen, ob im Lager
+        let intersects = raycaster.intersectObjects(schildchen);
+        if (intersects.length > 0) {
+            let clickedLabel = intersects[0].object;
+            console.log(`Schild im Lager angeklickt: ${clickedLabel.name}`);
 
-        // Finde heraus, welches Schild angeklickt wurde (Index)
-        let eimerIndex = schildchen.indexOf(clickedLabel);
-
-        if (eimerIndex !== -1) {
-            // Bewege den entsprechenden Eimer in den Proberaum
-            let eimerMesh = eimerMeshes[eimerIndex];
-
-            // Setze den Eimer und das Schildchen unsichtbar im Lager
-            eimerMesh.visible = false;
-            clickedLabel.visible = false;
-
-            // Anleitung unsichtbar machen
-            anleitungMesh.visible = false;
-
-            // Proberaum Marker sichtbar machen
-            lagerproberaumMarker.visible = true; 
-
-            // Bewege das Eimer-Mesh in den Proberaum und mache es dort sichtbar
-            let eimerMeshClone = eimerMesh.clone();  // Optional: Klonen, falls du Kopien im Proberaum willst
-            eimerMeshClone.position.copy(proberaumPositionen[eimerIndex]);  // Setze die neue Position im Proberaum
-            eimerMeshClone.visible = true;  // Sichtbar im Proberaum
-            scene.add(eimerMeshClone);  // Füge das duplizierte Eimer-Mesh in die Szene ein
-
-            // Bewege das zugehörige Schildchen ebenfalls in den Proberaum
-            let schildClone = clickedLabel.clone();  // Klone das Schild
-            schildClone.position.set(
-                proberaumPositionen[eimerIndex].x,
-                proberaumPositionen[eimerIndex].y + 0.7,  // Schild über dem Eimer
-                proberaumPositionen[eimerIndex].z
-            );
-            schildClone.visible = true;  // Sichtbar im Proberaum
-            scene.add(schildClone);  // Füge das Schild in den Proberaum ein
-
-            // Füge das geklonte Schild zur Liste der Proberaumschilder hinzu
-            schildchenProberaum.push(schildClone);  // Füge das **Objekt**, nicht den Namen hinzu
-
-            console.log(`Eimer ${eimerPositionen[eimerIndex].name} in den Proberaum bewegt und im Lager entfernt`);
+            // Logik zum Bewegen der Eimer
+            moveToProberaum(schildchen.indexOf(clickedLabel), clickedLabel);
         }
     }
 });
+
+function moveToProberaum(eimerIndex, clickedLabel) {
+    let eimerMesh = eimerMeshes[eimerIndex];
+    eimerMesh.visible = false;
+    clickedLabel.visible = false;
+
+    // Eimer und Schild in den Proberaum verschieben
+    let eimerMeshClone = eimerMesh.clone();
+    eimerMeshClone.position.copy(proberaumPositionen[eimerIndex]);
+    eimerMeshClone.visible = true;
+    scene.add(eimerMeshClone);
+
+    let schildClone = clickedLabel.clone();
+    schildClone.position.set(
+        proberaumPositionen[eimerIndex].x,
+        proberaumPositionen[eimerIndex].y + 0.7,
+        proberaumPositionen[eimerIndex].z
+    );
+    schildClone.visible = true;
+    scene.add(schildClone);
+    schildchenProberaum.push(schildClone);
+    uiContainer.style.display = 'none';
+
+    // Anleitung unsichtbar machen
+    anleitungMesh.visible = false;
+
+    // Proberaum Marker sichtbar machen
+    lagerproberaumMarker.visible = true;     
+}
 

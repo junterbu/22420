@@ -6,6 +6,7 @@ import { renderer, camera } from './View_functions.js';
 import { Rohdichten, bitumenAnteil } from './Mischraum.js';
 import { eimerWerte } from './Gesteinsraum.js';
 import { isMobileDevice } from './Allgemeines.js';
+// import { generateExcelAfterMarshall } from './Excel.js';
 
 const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
 
@@ -15,7 +16,7 @@ let animationMixer;
 let buttonOn; // Der Button aus der GLB-Datei
 let action; // Die Animation selbst
 let clock = new THREE.Clock(); // Uhr für präzise Delta-Zeit
-const FPS = 24; // Frame-Rate
+const FPS = 1; // Frame-Rate
 
 let probekörper; // Referenz auf das Objekt
 
@@ -74,6 +75,7 @@ function loadMarshallModel() {
                             console.log('Button "button_on" wurde angeklickt!');
                             playAnimation();
                             animate();
+                            // generateExcelAfterMarshall();
                         }
                     });
                 } else {
@@ -89,7 +91,7 @@ function loadMarshallModel() {
 }
 
 let animationCompleted = false; // Variable zur Verfolgung des Animationsstatus
-let raumdichten = [null,null,null];
+export let raumdichten = [null,null,null];
 // Update-Funktion für Animation und Sichtbarkeitssteuerung
 function animate() {
     requestAnimationFrame(animate);
@@ -121,14 +123,19 @@ function animate() {
             console.log(Rohdichten)
             context.clearRect(0, 0, canvas.width, canvas.height); // Lösche den alten Text
             let startX = 250;
-            let startY = 50;
-            let lineHeight = 50;
+            let startY = 30;
+            let lineHeight = 30;
 
             for (let i=0; i<raumdichten.length; i++){
                 if (raumdichten[i] !== null){
                     context.fillText(`Raumdichte ${i + 1}: ${raumdichten[i].toFixed(3)} g/cm³`, startX, startY + i * lineHeight)
                 } else {
-                    context.fillText("Bitte Bitumengehalt oder Eimer auswählen!", canvas.width / 2, canvas.height / 2)
+                    // Initialer Text
+                    // Zweizeiliger Text
+                    const line1 = "Bitte Bitumengehalt";
+                    const line2 = "oder Eimer auswählen!";
+                    context.fillText(line1, canvas.width / 2, canvas.height / 3);
+                    context.fillText(line2, canvas.width / 2, canvas.height* 2 / 3);
                 }
             } 
         }

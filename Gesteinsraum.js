@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {scene} from "./Allgemeines.js"
 import {schildchenProberaum} from "./Lager.js";
-import {goToMischraum, camera,} from "./View_functions.js";
+import {goToMischraum, camera, currentRoom} from "./View_functions.js";
 import {toMischraumMarker} from "./Marker.js";
 import { isMobileDevice } from './Allgemeines.js';
 
@@ -39,7 +39,6 @@ let currentMixIndex = 0
 let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
 
-// Raycasting für die Eimer-Labels im Proberaum (Prozentsatzauswahl)
 window.addEventListener(inputEvent, function(event) {
     const mouse = new THREE.Vector2();
     if (inputEvent === 'touchstart') {
@@ -53,16 +52,17 @@ window.addEventListener(inputEvent, function(event) {
 
     raycaster.setFromCamera(mouse, camera);
 
-    // Prüfe, ob ein Schildchen im Proberaum angeklickt wurde
-    let intersects = raycaster.intersectObjects(schildchenProberaum);  // Proberaum-Schilder
+    // Nur Schilder im Proberaum und wenn im Proberaum
+    if (currentRoom === 'Gesteinsraum') { // Überprüfen, ob im Proberaum
+        let intersects = raycaster.intersectObjects(schildchenProberaum);
+        if (intersects.length > 0) {
+            let clickedLabel = intersects[0].object;
+            console.log(`Schild im Proberaum angeklickt: ${clickedLabel.name}`);
 
-    if (intersects.length > 0) {
-        let clickedLabel = intersects[0].object;
-        console.log(`Schild im Proberaum angeklickt: ${clickedLabel.name}`);  // Zeigt den Namen des geklickten Schilds an
-
-        // Öffne den Schieberegler für den angeklickten Eimer im Proberaum
-        showPercentageUI(clickedLabel.name);
-    };
+            // Schieberegler-UI anzeigen
+            showPercentageUI(clickedLabel.name);
+        }
+    }
 });
 
 let totalProzent = 0;  // Neue Variable für den Gesamtprozentsatz
@@ -114,7 +114,7 @@ anleitungContextProberaum.textBaseline = 'middle';
 
 // Mehrzeiliger Text für den Proberaum
 let textLinesProberaum = [
-    "Hier können Sie Ihre Mischung erstellen.",
+    "Hier können Sie Ihre Sieblinie erstellen.",
     "Verwenden Sie den Schieberegler,",
     "um die Anteile einzustellen",
     "und die Sieblinie zu erstellen.",
@@ -171,6 +171,8 @@ function showPercentageUI(eimerName) {
     document.getElementById('percentValue').textContent = `${eimerWerte[eimerName]}%`;
 };
 
+export let neueSieblinie = Array(13).fill(0);
+
 // Event-Listener für Schieberegler-Änderungen
 document.getElementById('percentRange').addEventListener('input', function() {
     const eimerName = currentEimer; // Aktueller Eimer
@@ -194,7 +196,10 @@ document.getElementById('percentRange').addEventListener('input', function() {
     updateTotalPercentageDisplay();
   
     // Sieblinie aktualisieren
-    aktualisiereSieblinie();
+    neueSieblinie = aktualisiereSieblinie();
+
+    console.log(neueSieblinie)
+
 });
 
 let sieblinien = {
@@ -210,7 +215,7 @@ let sieblinien = {
 
 
 function berechneGesamtsieblinie() {
-    let gesamtsieblinie = Array(13).fill(0);; // Länge des Gesamtsieblinien-Arrays
+    let gesamtsieblinie = Array(13).fill(0); // Länge des Gesamtsieblinien-Arrays
 
     for (let eimer in eimerWerte) {
         let prozent = eimerWerte[eimer] / 100;
@@ -374,11 +379,12 @@ function zeigeSieblinieMarker() {
     scene.add(sieblinieMesh);
 }
 
+
 // Funktion zur Aktualisierung der Sieblinie
 function aktualisiereSieblinie() {
     // Berechne die neue Sieblinie basierend auf den aktuellen Prozentwerten
     let neueSieblinie = berechneGesamtsieblinie();
-    
+
     // Zeichne die neue Sieblinie
     let canvasNeueSieblinie = zeichneSieblinie(neueSieblinie);
     
@@ -392,7 +398,9 @@ function aktualisiereSieblinie() {
     } else {
         toMischraumMarker.visible = false; // Marker verstecken
     }
-}
+
+    return neueSieblinie
+} 
 
 zeigeSieblinieMarker();
 
