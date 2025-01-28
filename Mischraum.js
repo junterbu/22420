@@ -84,11 +84,14 @@ function updateRohdichteDisplay() {
 let currentStep = 0;
 // Funktion zur Berechnung der Rohdichte des Materials
 function berechneRohdichte() {
-    if (currentStep >= 3) {
+    if (currentStep == 2) {
+        toMarshallMarker.visible = true;
+    } else if (currentStep >= 3) {
         console.warn("Alle drei Rohdichten wurden bereits berechnet.");
         alert("Alle drei Rohdichten wurden bereits berechnet.");
+        toMarshallMarker.visible = true;
         return;
-    }
+    } 
 
     let eimerWertFuller = eimerWerte['Füller'];
     let Faktor = 100 / (100 - bitumenAnteil);
@@ -155,13 +158,19 @@ window.addEventListener(inputEvent, function(event) {
     }
 
     raycaster.setFromCamera(mouse, camera);
-
-    if (mixButton) {
-        let intersects = raycaster.intersectObjects([mixButton]);
+    if (inputEvent === "touchstart") {
+        let intersects = raycaster.intersectObjects(RohdichteMesh)
         if (intersects.length > 0) {
             console.log("MixButton wurde angeklickt!");
             berechneRohdichte();
-            toMarshallMarker.visible = true;
+        }
+    } else {
+        if (mixButton) {
+            let intersects = raycaster.intersectObjects([mixButton]);
+            if (intersects.length > 0) {
+                console.log("MixButton wurde angeklickt!");
+                berechneRohdichte();
+            }
         }
     }
 });

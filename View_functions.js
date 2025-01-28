@@ -38,9 +38,9 @@ window.addEventListener(inputEvent, function (event) {
 function handleMarkerClick(marker) {
     if (marker === lagerMarker) {
         goToLager();
-    } else if (marker === proberaumlagerMarker) {
+    } else if (marker === proberaumlagerMarker && currentRoom == "Gesteinsraum") {
         fromProberaumtoLager();
-    } else if (marker === lagerproberaumMarker) {
+    } else if (marker === lagerproberaumMarker && currentRoom == "Lager") {
         fromLagertoProberaum();
     } else if (marker === leaveproberaumMarker) {
         leaveView();
@@ -48,7 +48,7 @@ function handleMarkerClick(marker) {
         leaveView();
     } else if (marker === leaveMischraum) {
         leaveView();
-    } else if (marker === toMarshallMarker) {
+    } else if (marker === toMarshallMarker && currentRoom == "Mischraum") {
         toMarshall();
     } else if (marker === leaveMarshall) {
         leaveView();
@@ -128,11 +128,12 @@ let lagerViewpoint = new THREE.Vector3(-12.5, 1.5, 4);
 let proberaumViewpoint = new THREE.Vector3(5, 1.5, -15);
 let MischraumViewpoint = new THREE.Vector3(-8, 1.5, 7);
 let MarshallViewpoint = new THREE.Vector3(-8, 1.5, 3);
-
+export let currentRoom = ""
 export function goToLager() {
+    currentRoom = "Lager";
     // Zielposition und LookAt-Werte definieren
     const targetPosition = new THREE.Vector3(lagerViewpoint.x, lagerViewpoint.y, lagerViewpoint.z);
-    const targetLookAt = new THREE.Vector3(lagerViewpoint.x, lagerViewpoint.y, lagerViewpoint.z - 0.1);
+    const targetLookAt = new THREE.Vector3(lagerViewpoint.x, lagerViewpoint.y, lagerViewpoint.z + 0.1);
 
     // Kamera animiert bewegen
     animateCamera(targetPosition, targetLookAt);
@@ -153,7 +154,7 @@ export function goToLager() {
 }
 
 export function fromLagertoProberaum() {
-
+    currentRoom = "Gesteinsraum";
     //Wegpunkte vom Lager ins Labor
     const points = [
         new THREE.Vector3(-12.5, 1.5, 4),  // Startpunkt (Lager)
@@ -195,10 +196,11 @@ export function fromLagertoProberaum() {
     animateAlongPath();
 
     // Schieberegler einblenden (optional)
-    document.getElementById('uiContainer').style.display = 'block';
+    document.getElementById('uiContainer').style.display = 'none';
 }
 
 export function fromProberaumtoLager() {
+    currentRoom = "Lager";
     //Wegpunkte vom Gesteinsraum ins Lager
     const points = [
         new THREE.Vector3(5, 1.5, -15),    // Zielpunkt (Proberaum)
@@ -245,6 +247,7 @@ export function fromProberaumtoLager() {
 }
 
 export function goToMischraum() {
+    currentRoom = 'Mischraum'
     //Wegpunkte vom Gesteinsraum ins Lager
     const points = [
         new THREE.Vector3(5, 1.5, -15),    // Startpunkt
@@ -258,7 +261,7 @@ export function goToMischraum() {
     const curve = new THREE.CatmullRomCurve3(points);
 
     // Anzahl der Segmente der Animation
-    const numPoints = 400;
+    const numPoints = 40;
     const curvePoints = curve.getPoints(numPoints);
 
     // Animation über den Pfad
@@ -278,6 +281,19 @@ export function goToMischraum() {
         } else {
             // Animation beendet
             console.log("Kamera hat den Proberaum erreicht.");
+            
+            const targetPosition = new THREE.Vector3(-8, 1.5, 7); // Neue Zielposition
+            const targetLookAt = new THREE.Vector3(-8.5, 1.5, 6); // Zielblickpunkt im Mischraum
+        
+            // Kamera animiert bewegen
+            animateCamera(targetPosition, targetLookAt);
+        
+            // Optional: Kontrollziele direkt setzen
+            controls.target.set(targetPosition.x, targetPosition.y, targetPosition.z);
+            controls.update();
+            controls.enableZoom = false;
+            controls.enablePan = false;
+            controls.enableRotate = true;
         }
     }   
 
@@ -360,6 +376,7 @@ export function toMarshall() {
         } else {
             // Animation beendet
             console.log("Kamera hat den Proberaum erreicht.");
+
         }
     }   
 
