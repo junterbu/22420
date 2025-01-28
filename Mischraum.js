@@ -150,27 +150,20 @@ window.addEventListener(inputEvent, function(event) {
     const mouse = new THREE.Vector2();
     if (inputEvent === 'touchstart') {
         const touch = event.touches[0];
-        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+        mouse.x = (touch.clientX / window.innerWidth) * 3 - 1;
+        mouse.y = -(touch.clientY / window.innerHeight) * 3 + 1;
     } else {
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
 
     raycaster.setFromCamera(mouse, camera);
-    if (inputEvent === "touchstart") {
-        let intersects = raycaster.intersectObjects(RohdichteMesh)
+
+    if (mixButton) {
+        let intersects = raycaster.intersectObjects([mixButton]);
         if (intersects.length > 0) {
             console.log("MixButton wurde angeklickt!");
             berechneRohdichte();
-        }
-    } else {
-        if (mixButton) {
-            let intersects = raycaster.intersectObjects([mixButton]);
-            if (intersects.length > 0) {
-                console.log("MixButton wurde angeklickt!");
-                berechneRohdichte();
-            }
         }
     }
 });
