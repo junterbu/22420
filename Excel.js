@@ -1,58 +1,65 @@
-// excel_export_virtual_lab.js
-import * as XLSX from 'https://unpkg.com/xlsx/xlsx.mjs'
-import { eimerWerte, neueSieblinie } from './Gesteinsraum.js';
-import { Rohdichten, bitumenAnteil } from './Mischraum.js';
-import { raumdichten } from './Marshall.js';
+export function generatePDFReport(mischgutName, eimerWerte, bitumenAnteil, Rohdichten, raumdichten, sieblinieCanvas) {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    let startY = 10;
 
-export function generateExcelAfterMarshall() {
-    // Daten für die Excel-Tabelle vorbereiten
-    const materialData = Object.entries(eimerWerte).map(([material, value]) => ({
-        Material: material,
-        'Eimerwerte (%)': value,
-    }));
+    // Titel
+    pdf.setFontSize(16);
+    pdf.text("Laborbericht - Asphaltmischung", 105, startY, { align: "center" });
+    startY += 10;
 
-    // Extrahiere alle Material-Werte
-    const materialValues = materialData.map(item => item.Material);
-    const eimerwerteValues = materialData.map(item => item['Eimerwerte (%)']);
+    // Mischgut
+    pdf.setFontSize(12);
+    pdf.text(`Asphaltmischung: ${mischgutName}`, 10, startY);
+    startY += 10;
 
-    const parameterData = [
-        { Parameter: 'Bindemittelgehalt (%)', Value: bitumenAnteil },
-        ...Rohdichten.map((rho, index) => ({ Parameter: `Rohdichte ${index + 1} (g/cm³)`, Value: rho })),
-        ...raumdichten.map((rho, index) => ({ Parameter: `Raumdichte ${index + 1} (g/cm³)`, Value: rho })),
-    ];
+    // Eimerwerte Tabelle
+    pdf.text("Eimerwerte:", 10, startY);
+    startY += 5;
 
-    // Sieblinienwerte (als Beispiel, basierend auf vorhandenen Daten)
-    const sieblinieData = [
-        { "Sieve Size (mm)": 0.063, "Accumulated Passing (%)": neueSieblinie[0] },
-        { "Sieve Size (mm)": 0.125, "Accumulated Passing (%)": neueSieblinie[1] },
-        { "Sieve Size (mm)": 0.25, "Accumulated Passing (%)": neueSieblinie[2] },
-        { "Sieve Size (mm)": 0.5, "Accumulated Passing (%)": neueSieblinie[3] },
-        { "Sieve Size (mm)": 1, "Accumulated Passing (%)": neueSieblinie[4] },
-        { "Sieve Size (mm)": 2, "Accumulated Passing (%)": neueSieblinie[5] },
-        { "Sieve Size (mm)": 4, "Accumulated Passing (%)": neueSieblinie[6] },
-        { "Sieve Size (mm)": 8, "Accumulated Passing (%)": neueSieblinie[7] },
-        { "Sieve Size (mm)": 11.2, "Accumulated Passing (%)": neueSieblinie[8] },
-        { "Sieve Size (mm)": 16, "Accumulated Passing (%)": neueSieblinie[9] },
-        { "Sieve Size (mm)": 22.4, "Accumulated Passing (%)": neueSieblinie[10] },
-        { "Sieve Size (mm)": 31.5, "Accumulated Passing (%)": neueSieblinie[11] },
-        { "Sieve Size (mm)": 45, "Accumulated Passing (%)": neueSieblinie[12] },
-    ];
+    const eimerHeaders = ["Füller", "0/2", "2/4", "4/8", "8/11", "11/16", "16/22", "22/32"];
+    const eimerData = [Object.values(eimerWerte)];
+    pdf.autoTable({
+        startY,
+        head: [eimerHeaders],
+        body: eimerData,
+    });
+    startY = pdf.lastAutoTable.finalY + 10;
 
-    // Arbeitsblätter erstellen
-    const materialSheet = XLSX.utils.json_to_sheet(materialData);
-    
-    
-    const parameterSheet = XLSX.utils.json_to_sheet(parameterData);
-    const sieblinieSheet = XLSX.utils.json_to_sheet(sieblinieData);
+    // Bindemittel und Rohdichten
+    pdf.text("Bindemittelgehalt und Rohdichten:", 10, startY);
+    startY += 5;
 
-    // Workbook erstellen
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, materialSheet, 'Material Übersicht');
-    XLSX.utils.sheet_add_aoa(workbook, [["Asphaltmischung: z.B. AC 11 deck A1"]], {Origin: "A1:L1"});
+    const rohHeaders = ["Bitumen (%)", "Rohdichte 1", "Rohdichte 2", "Rohdichte 3"];
+    const rohData = [[bitumenAnteil, ...Rohdichten]];
+    pdf.autoTable({
+        startY,
+        head: [rohHeaders],
+        body: rohData,
+    });
+    startY = pdf.lastAutoTable.finalY + 10;
 
-    
-    // Workbook speichern
-    XLSX.writeFile(workbook, 'Labor_Daten.xlsx');
+    // Raumdichten
+    pdf.text("Raumdichten:", 10, startY);
+    startY += 5;
 
-    console.log('Excel-Datei Labor_Daten.xlsx wurde erfolgreich erstellt!');
+    const raumHeaders = ["R1-1", "R1-2", "R1-3", "R1-4", "R2-1", "R2-2", "R2-3", "R2-4", "R3-1", "R3-2", "R3-3", "R3-4"];
+    const raumData = [raumdichten.flat()];
+    pdf.autoTable({
+        startY,
+        head: [raumHeaders],
+        body: raumData,
+    });
+    startY = pdf.lastAutoTable.finalY + 10;
+
+    // Sieblinie
+    if (sieblinieCanvas) {
+        pdf.text("Sieblinie:", 10, startY);
+        startY += 5;
+        const sieblinieImage = sieblinieCanvas.toDataURL("image/png");
+        pdf.addImage(sieblinieImage, "PNG", 10, startY, 180, 80);
+    }
+
+    // Speichern der PDF
+    pdf.save("Laborbericht.pdf");
 }

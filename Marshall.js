@@ -6,7 +6,7 @@ import { renderer, camera } from './View_functions.js';
 import { Rohdichten, bitumenAnteil } from './Mischraum.js';
 import { eimerWerte } from './Gesteinsraum.js';
 import { isMobileDevice } from './Allgemeines.js';
-// import { generateExcelAfterMarshall } from './Excel.js';
+import { generatePDFReport } from './Excel.js';
 
 const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
 
@@ -91,7 +91,7 @@ function loadMarshallModel() {
 }
 
 let animationCompleted = false; // Variable zur Verfolgung des Animationsstatus
-export let raumdichten = [null,null,null];
+export let raumdichten = Array(3).fill(null).map(() => Array(4).fill(null)); // 3 Rohdichten mit je 4 Raumdichten
 // Update-Funktion für Animation und Sichtbarkeitssteuerung
 function animate() {
     requestAnimationFrame(animate);
@@ -116,28 +116,47 @@ function animate() {
         
             // Berechne drei Raumdichten basierend auf den drei Rohdichten
             const bitumenGehalt = parseFloat(bitumenAnteil) || 0;
-            for (let i=0; i<Rohdichten.length; i++){
-                raumdichten[i] = berechneRaumdichte(Rohdichten[i], bitumenGehalt, eimerWerte)
+            for (let i = 0; i < Rohdichten.length; i++) {
+                if (Rohdichten[i] !== null) {
+                    raumdichten[i] = berechneRaumdichte(Rohdichten[i], bitumenGehalt, eimerWerte);
+                }
             }
             console.log(raumdichten)
             console.log(Rohdichten)
             context.clearRect(0, 0, canvas.width, canvas.height); // Lösche den alten Text
-            let startX = 250;
-            let startY = 30;
+            context.font = '20px Arial'; // Kleinere Schrift für mehrere Werte
+            let startX = 125;
+            let startY = 75;
             let lineHeight = 30;
+            let colWidth = 175; // Spaltenbreite
+            let rowHeight = 50; // Zeilenhöhe
 
-            for (let i=0; i<raumdichten.length; i++){
-                if (raumdichten[i] !== null){
-                    context.fillText(`Raumdichte ${i + 1}: ${raumdichten[i].toFixed(3)} g/cm³`, startX, startY + i * lineHeight)
-                } else {
-                    // Initialer Text
-                    // Zweizeiliger Text
-                    const line1 = "Bitte Bitumengehalt";
-                    const line2 = "oder Eimer auswählen!";
-                    context.fillText(line1, canvas.width / 2, canvas.height / 3);
-                    context.fillText(line2, canvas.width / 2, canvas.height* 2 / 3);
+            context.fillText("Raumdichten Übersicht:", canvas.width / 2, 20);
+
+            // Werte anzeigen
+            for (let i = 0; i < raumdichten.length; i++) {
+                for (let j = 0; j < raumdichten[i].length; j++) {
+                    const value = raumdichten[i][j];
+                    if (value !== null) {
+                        context.fillText(
+                            `R${i + 1}-${j + 1}: ${value.toFixed(3)} g/cm³`,
+                            startX + j * colWidth,
+                            startY + i * rowHeight
+                        );
+                    } else {
+                        context.fillText(
+                            `R${i + 1}-${j + 1}: N/A`,
+                            startX + j * colWidth,
+                            startY + i * rowHeight
+                        );
+                    }
                 }
-            } 
+            }
+            
+            
+            const sieblinieCanvas = document.querySelector("#canvas-container canvas"); // Sieblinie Canvas abrufen
+            generatePDFReport("AC 11 deck A1", eimerWerte, bitumenGehalt, Rohdichten, raumdichten, sieblinieCanvas);
+            texture.needsUpdate = true; // Textur aktualisieren
         }
     }
 
@@ -204,28 +223,31 @@ export function berechneGroesstkorn(eimeraktuell) {
     return maxKorn;
 }
 
+
 // Funktion zur Berechnung der Raumdichte
 function berechneRaumdichte(rhoRM, bitumenAnteil, eimerWerte) {
     const maxKorn = berechneGroesstkorn(eimerWerte);
     const hohlraumgehalt = getHohlraumgehalt(maxKorn);
 
     if (!hohlraumgehalt) {
-        return null;
+        return Array(4).fill(null); // Wenn keine gültigen Werte, fülle mit null
     }
 
-    let HFB = Math.random() * (85 - 75) + 75;
-    let H_bit = (hohlraumgehalt/100) -  (HFB/100) * (hohlraumgehalt/100)
+    let raumdichtenSet = [];
+    for (let i = 0; i < 4; i++) {
+        let HFB = Math.random() * (85 - 75) + 75; // Zufälliger Wert zwischen 75 und 85
+        let H_bit = (hohlraumgehalt / 100) - (HFB / 100) * (hohlraumgehalt / 100);
 
-    console.log(HFB, H_bit)
-    // Berechnung der Raumdichte
-    let rhoA = rhoRM - rhoRM * H_bit
-    return rhoA;
+        let rhoA = rhoRM - rhoRM * H_bit; // Berechnung der Raumdichte
+        raumdichtenSet.push(rhoA);
+    }
+    return raumdichtenSet;
 }
 
 // Plane und Text erstellen
 let canvas = document.createElement('canvas');
-canvas.width = 512;
-canvas.height = 128;
+canvas.width = 768;
+canvas.height = 256;
 let context = canvas.getContext('2d');
 context.font = '40px Arial';
 context.fillStyle = 'white';
@@ -235,9 +257,9 @@ context.fillText('Marshall-Verdichter starten', canvas.width / 2, canvas.height 
 
 let texture = new THREE.CanvasTexture(canvas);
 let material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-let planeGeometry = new THREE.PlaneGeometry(1.25, 0.75); // Breite und Höhe der Plane
+let planeGeometry = new THREE.PlaneGeometry(3, 1.25); // Breite und Höhe der Plane
 let planeMesh = new THREE.Mesh(planeGeometry, material);
-planeMesh.position.set(-7, 1.5, 1); // Setze die Position im Raum
+planeMesh.position.set(-6, 2, 1); // Setze die Position im Raum
 scene.add(planeMesh);
 
 function updatePlaneText(newText) {

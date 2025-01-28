@@ -9,6 +9,9 @@ import { VRButton } from 'three/addons/webxr/VRButton.js';
 // Bestimmen Sie das Event basierend auf dem Gerät
 const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
 
+leaveMischraum.visible = false;
+leaveMarshall.visible = false;
+
 window.addEventListener(inputEvent, function (event) {
     const mouse = new THREE.Vector2();
 
@@ -151,6 +154,8 @@ export function goToLager() {
     // }
     // Blende den `uiContainer`-Schieberegler aus
     document.getElementById('uiContainer').style.display = 'none';
+    leaveMischraum.visible = false;
+    leaveMarshall.visible = false;
 }
 
 export function fromLagertoProberaum() {
@@ -197,6 +202,9 @@ export function fromLagertoProberaum() {
 
     // Schieberegler einblenden (optional)
     document.getElementById('uiContainer').style.display = 'none';
+
+    leaveMarshall.visible = false;
+    leaveMischraum.visible = false;
 }
 
 export function fromProberaumtoLager() {
@@ -244,6 +252,9 @@ export function fromProberaumtoLager() {
     // Schieberegler einblenden (optional)
     document.getElementBy
     Id('uiContainer').style.display = 'none';
+
+    leaveMarshall.visible = false;
+    leaveMischraum.visible = false;
 }
 
 export function goToMischraum() {
@@ -294,9 +305,13 @@ export function goToMischraum() {
             controls.enableZoom = false;
             controls.enablePan = false;
             controls.enableRotate = true;
+            leaveMischraum.visible = true;
         }
+
+        
     }   
 
+    leaveMarshall.visible = false;
     // Start der Animation
     animateAlongPath();
 
@@ -341,6 +356,9 @@ export function leaveView() {
     // if (isMobileDevice()) {
     //     exitARView();
     // }
+
+    leaveMarshall.visible = false;
+    leaveMischraum.visible = false;
 }
 
 export function toMarshall() {
@@ -376,10 +394,12 @@ export function toMarshall() {
         } else {
             // Animation beendet
             console.log("Kamera hat den Proberaum erreicht.");
-
+            leaveMarshall.visible = true;
         }
-    }   
 
+        
+    }   
+    leaveMischraum.visible = false;
     // Start der Animation
     animateAlongPath();
 
