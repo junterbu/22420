@@ -261,7 +261,7 @@ export function goToMischraum() {
     const curve = new THREE.CatmullRomCurve3(points);
 
     // Anzahl der Segmente der Animation
-    const numPoints = 40;
+    const numPoints = 400;
     const curvePoints = curve.getPoints(numPoints);
 
     // Animation über den Pfad

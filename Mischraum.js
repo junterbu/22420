@@ -150,8 +150,8 @@ window.addEventListener(inputEvent, function(event) {
     const mouse = new THREE.Vector2();
     if (inputEvent === 'touchstart') {
         const touch = event.touches[0];
-        mouse.x = (touch.clientX / window.innerWidth) * 3 - 1;
-        mouse.y = -(touch.clientY / window.innerHeight) * 3 + 1;
+        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
     } else {
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
