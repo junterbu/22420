@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import {dirLight} from "./Allgemeines.js";
+import {dirLight1, } from "./Allgemeines.js";
 import {TWEEN} from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';;
 import { isMobileDevice, scene } from './Allgemeines.js';
 import { lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, toMarshallMarker, leaveMarshall, activeMarkers, markers} from "./Marker.js";
@@ -451,20 +451,20 @@ function updateQuality(level) {
         case 1:
             renderer.setPixelRatio(0.5);
             renderer.antialias = false;
-            dirLight.shadow.mapSize.set(256, 256); // Geringere Schattenauflösung
+            dirLight1.shadow.mapSize.set(256, 256); // Geringere Schattenauflösung
             break;
         case 2:
             renderer.setPixelRatio(1);
             renderer.antialias = true;
-            dirLight.shadow.mapSize.set(512, 512);
+            dirLight1.shadow.mapSize.set(512, 512);
             break;
         case 3:
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.antialias = true;
-            dirLight.shadow.mapSize.set(1024, 1024);
+            dirLight1.shadow.mapSize.set(1024, 1024);
             break;
     }
-    dirLight.shadow.needsUpdate = true; // Aktualisiere Schatten
+    dirLight1.shadow.needsUpdate = true; // Aktualisiere Schatten
     console.log(`Renderqualität geändert: Level ${level}`);
 }
 

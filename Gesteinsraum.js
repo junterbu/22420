@@ -6,6 +6,8 @@ import {toMischraumMarker} from "./Marker.js";
 import { isMobileDevice } from './Allgemeines.js';
 
 const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
+export let canvasSieblinie
+
 
 let mischungsGrenzen = {
     "Bitte klicken": {
@@ -239,7 +241,7 @@ function zeichneSieblinie(sieblinie) {
     let paddingTop = 30;  // Abstand oben für Titel
     let paddingRight = 20;  // Rechter Rand
 
-    let canvasSieblinie = document.createElement('canvas');
+    canvasSieblinie = document.createElement('canvas');
     canvasSieblinie.width = canvasWidth;
     canvasSieblinie.height = canvasHeight + paddingBottom + paddingTop;  // Platz für Titel und X-Achse
     let contextSieblinie = canvasSieblinie.getContext('2d');

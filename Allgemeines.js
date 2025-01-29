@@ -41,12 +41,20 @@ hemiLight.position.set(0, 20, 0);
 scene.add(hemiLight);
 
 // Richtungslicht mit Schatten
-export let dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-dirLight.position.set(5, 20, 7.5);
-dirLight.castShadow = false;  // Schatten aktivieren
-dirLight.shadow.mapSize.width = 512;  // Schattenauflösung
-dirLight.shadow.mapSize.height = 512;
-scene.add(dirLight);
+export let dirLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
+dirLight1.position.set(5, 20, 7.5);
+dirLight1.castShadow = false;  // Schatten aktivieren
+dirLight1.shadow.mapSize.width = 512;  // Schattenauflösung
+dirLight1.shadow.mapSize.height = 512;
+scene.add(dirLight1);
+
+// Richtungslicht mit Schatten
+export let dirLight2 = new THREE.DirectionalLight(0xffffff, 1.5);
+dirLight2.position.set(5, 20, -7.5);
+dirLight2.castShadow = false;  // Schatten aktivieren
+dirLight2.shadow.mapSize.width = 512;  // Schattenauflösung
+dirLight2.shadow.mapSize.height = 512;
+scene.add(dirLight2);
 
 const pointLight = new THREE.PointLight(0xffffff, 1, 50); // Weißes Punktlicht
 pointLight.position.set(-12.5, 10, 4); // Position über der Szene
