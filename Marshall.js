@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { scene } from './Allgemeines.js';
 import { renderer, camera } from './View_functions.js';
 import { Rohdichten, bitumenAnteil, bitumengehalt } from './Mischraum.js';
-import { eimerWerte, selectedMix } from './Gesteinsraum.js';
+import { canvasSieblinie, eimerWerte, selectedMix } from './Gesteinsraum.js';
 import { isMobileDevice } from './Allgemeines.js';
 import { generatePDFReport } from './Excel.js';
 
@@ -155,7 +155,7 @@ function animate() {
             
             
             const sieblinieCanvas = document.querySelector("#canvas-container canvas"); // Sieblinie Canvas abrufen
-            generatePDFReport(selectedMix, eimerWerte, bitumengehalt, Rohdichten, raumdichten, sieblinieCanvas);
+            generatePDFReport(selectedMix, eimerWerte, bitumengehalt, Rohdichten, raumdichten, canvasSieblinie);
             texture.needsUpdate = true; // Textur aktualisieren
         }
     }
