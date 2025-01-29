@@ -26,9 +26,10 @@ document.getElementById('bitumenRange').addEventListener('input', function() {
     bitumenAnteil = parseFloat(this.value);
     document.getElementById('bitumenValue').textContent = `${bitumenAnteil}%`;
 });
+console.log(bitumenAnteil)
 
 //Anzeige Rohdichte
-export let Rohdichten = [null, null, null];  // Neue Variable für die Rohdichte
+export let Rohdichten = [];  // Neue Variable für die Rohdichte
 
 // Erstelle ein Canvas für die 3D-Anzeige der Rohdichte
 let canvasRohdichte = document.createElement('canvas');
@@ -75,13 +76,14 @@ function updateRohdichteDisplay() {
 
     for (let i = 0; i < Rohdichten.length; i++) {
         if (Rohdichten[i] !== null) {
-            contextRohdichte.fillText(`Rohdichte ${i + 1}: ${Rohdichten[i].toFixed(3)} g/cm³`, startX, startY + i * lineHeight);
+            contextRohdichte.fillText(`Rohdichte ${i + 1}: ${Rohdichten[i]} g/cm³`, startX, startY + i * lineHeight);
         }
     }
     textureRohdichte.needsUpdate = true;
 }
 
 let currentStep = 0;
+export let bitumengehalt =[]
 // Funktion zur Berechnung der Rohdichte des Materials
 function berechneRohdichte() {
     if (currentStep == 2) {
@@ -102,9 +104,11 @@ function berechneRohdichte() {
                         dichteFuller * MAF +
                         dichteMaterial * MAG) / 100;
 
-    Rohdichten[currentStep] = dichteGesamt;
+    bitumengehalt.push(bitumenAnteil)
+    Rohdichten.push(dichteGesamt.toFixed(3));
     updateRohdichteDisplay();
     currentStep++;
+    return Rohdichten, bitumengehalt;
 }
 
 document.getElementById('bitumenRange').addEventListener('input', function() {

@@ -476,6 +476,8 @@ scene.add(selectionPlane);
 // Initialer Text auf der Plane
 updatePlaneLabel("Bitte klicken");
 
+export let selectedMix ="Bitte klicken"
+
 window.addEventListener(inputEvent, function(event) {
     const mouse = new THREE.Vector2();
     if (inputEvent === 'touchstart') {
@@ -494,7 +496,7 @@ window.addEventListener(inputEvent, function(event) {
     if (intersects.length > 0) {
         // Nächste Mischung auswählen
         currentMixIndex = (currentMixIndex + 1) % mixNames.length; // Zyklisch durch die Mischungen
-        const selectedMix = mixNames[currentMixIndex];
+        selectedMix = mixNames[currentMixIndex];
 
         // Grenzen aktualisieren
         aktuelleGrenzen = mischungsGrenzen[selectedMix];

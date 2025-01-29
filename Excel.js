@@ -1,4 +1,4 @@
-export function generatePDFReport(mischgutName, eimerWerte, bitumenAnteil, Rohdichten, raumdichten, sieblinieCanvas) {
+export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdichten, raumdichten, sieblinieCanvas) {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF();
     let startY = 10;
@@ -27,17 +27,30 @@ export function generatePDFReport(mischgutName, eimerWerte, bitumenAnteil, Rohdi
     startY = pdf.lastAutoTable.finalY + 10;
 
     // Bindemittel und Rohdichten
-    pdf.text("Bindemittelgehalt und Rohdichten:", 10, startY);
+    pdf.text("Bindemittelgehalt:", 10, startY);
     startY += 5;
 
-    const rohHeaders = ["Bitumen (%)", "Rohdichte 1", "Rohdichte 2", "Rohdichte 3"];
-    const rohData = [[bitumenAnteil, ...Rohdichten]];
+    const biHeaders = ["Bitumengehalt 1 (%)", "Bitumengehalt 2 (%)", "Bitumengehalt 3 (%)"];
+    const biData = [bitumengehalt.flat()];
+    pdf.autoTable({
+        startY,
+        head: [biHeaders],
+        body: biData,
+    });
+    startY = pdf.lastAutoTable.finalY + 10;
+
+    // Bindemittel und Rohdichten
+    pdf.text("Rohdichten:", 10, startY);
+    startY += 5;
+
+    const rohHeaders = ["Rohdichte 1", "Rohdichte 2", "Rohdichte 3"];
+    const rohData = [Rohdichten.flat()];
     pdf.autoTable({
         startY,
         head: [rohHeaders],
         body: rohData,
     });
-    startY = pdf.lastAutoTable.finalY + 10;
+    startY = pdf.lastAutoTable.finalY + 10;    
 
     // Raumdichten
     pdf.text("Raumdichten:", 10, startY);
