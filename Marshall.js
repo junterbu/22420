@@ -3,8 +3,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { scene } from './Allgemeines.js';
 import { renderer, camera } from './View_functions.js';
-import { Rohdichten, bitumenAnteil } from './Mischraum.js';
-import { eimerWerte } from './Gesteinsraum.js';
+import { Rohdichten, bitumenAnteil, bitumengehalt } from './Mischraum.js';
+import { eimerWerte, selectedMix } from './Gesteinsraum.js';
 import { isMobileDevice } from './Allgemeines.js';
 import { generatePDFReport } from './Excel.js';
 
@@ -139,7 +139,7 @@ function animate() {
                     const value = raumdichten[i][j];
                     if (value !== null) {
                         context.fillText(
-                            `R${i + 1}-${j + 1}: ${value.toFixed(3)} g/cm³`,
+                            `R${i + 1}-${j + 1}: ${value} g/cm³`,
                             startX + j * colWidth,
                             startY + i * rowHeight
                         );
@@ -155,7 +155,7 @@ function animate() {
             
             
             const sieblinieCanvas = document.querySelector("#canvas-container canvas"); // Sieblinie Canvas abrufen
-            generatePDFReport("AC 11 deck A1", eimerWerte, bitumenGehalt, Rohdichten, raumdichten, sieblinieCanvas);
+            generatePDFReport(selectedMix, eimerWerte, bitumengehalt, Rohdichten, raumdichten, sieblinieCanvas);
             texture.needsUpdate = true; // Textur aktualisieren
         }
     }
@@ -239,7 +239,8 @@ function berechneRaumdichte(rhoRM, bitumenAnteil, eimerWerte) {
         let H_bit = (hohlraumgehalt / 100) - (HFB / 100) * (hohlraumgehalt / 100);
 
         let rhoA = rhoRM - rhoRM * H_bit; // Berechnung der Raumdichte
-        raumdichtenSet.push(rhoA);
+        let rhoA_rounded = rhoA.toFixed(3);
+        raumdichtenSet.push(rhoA_rounded);
     }
     return raumdichtenSet;
 }
