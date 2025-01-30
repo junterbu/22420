@@ -193,5 +193,4 @@ function moveToProberaum(eimerIndex, clickedLabel) {
 
     // Proberaum Marker sichtbar machen
     lagerproberaumMarker.visible = true;     
-}
-
+};
