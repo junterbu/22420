@@ -174,7 +174,7 @@ export function fromLagertoProberaum() {
     const curve = new THREE.CatmullRomCurve3(points);
 
     // Anzahl der Segmente der Animation
-    const numPoints = 400;
+    const numPoints = 4;
     const curvePoints = curve.getPoints(numPoints);
     
     // Animation über den Pfad
@@ -223,7 +223,7 @@ export function fromProberaumtoLager() {
     const curve = new THREE.CatmullRomCurve3(points);
 
     // Anzahl der Segmente der Animation
-    const numPoints = 400;
+    const numPoints = 4;
     const curvePoints = curve.getPoints(numPoints);
     
     // Animation über den Pfad
@@ -272,7 +272,7 @@ export function goToMischraum() {
     const curve = new THREE.CatmullRomCurve3(points);
 
     // Anzahl der Segmente der Animation
-    const numPoints = 400;
+    const numPoints = 4;
     const curvePoints = curve.getPoints(numPoints);
 
     // Animation über den Pfad
@@ -374,7 +374,7 @@ export function toMarshall() {
     const curve = new THREE.CatmullRomCurve3(points);
 
     // Anzahl der Segmente der Animation
-    const numPoints = 300;
+    const numPoints = 3;
     const curvePoints = curve.getPoints(numPoints);
 
     // Animation über den Pfad

@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { scene } from './Allgemeines.js';
 import { renderer, camera } from './View_functions.js';
-import { Rohdichten, bitumenAnteil, bitumengehalt } from './Mischraum.js';
+import { Rohdichten, bitumenAnteil, bitumengehalt, dichteBitumen } from './Mischraum.js';
 import { canvasSieblinie, eimerWerte, selectedMix } from './Gesteinsraum.js';
 import { isMobileDevice } from './Allgemeines.js';
 import { generatePDFReport } from './Excel.js';
@@ -114,11 +114,10 @@ function animate() {
         if (action && action.isRunning() === false && !animationCompleted) {
             animationCompleted = true; // Setze den Status auf abgeschlossen
         
-            // Berechne drei Raumdichten basierend auf den drei Rohdichten
-            const bitumenGehalt = parseFloat(bitumenAnteil) || 0;
+        
             for (let i = 0; i < Rohdichten.length; i++) {
                 if (Rohdichten[i] !== null) {
-                    raumdichten[i] = berechneRaumdichte(Rohdichten[i], bitumenGehalt, eimerWerte);
+                    raumdichten[i] = berechneRaumdichte(Rohdichten[i], bitumengehalt[i], eimerWerte, selectedMix);
                 }
             }
             console.log(raumdichten)
@@ -195,9 +194,9 @@ function getHohlraumgehalt(maxKorn) {
     }
 
     // Zufälligen Wert im Bereich +-0.5 hinzufügen
-    const randomFactor = (Math.random() - 0.5) * 1; // Bereich: [-0.5, 0.5]
+    const randomFactor = (1 - 0.95) * (Math.random()-0.5); // Bereich: [-0.025, 0.025]
     const randomizedValue = baseValue + randomFactor;
-    return randomizedValue.toFixed(2); // Auf zwei Dezimalstellen runden
+    return baseValue; // Auf zwei Dezimalstellen runden
 }
 
 const eimeraktuell = eimerWerte
@@ -223,9 +222,69 @@ export function berechneGroesstkorn(eimeraktuell) {
     return maxKorn;
 }
 
+function berechneParabel(bitumenAnteil, selectedMix) {
+    let Bx = 0;
+
+    if (selectedMix == "AC 11 deck A1") {
+        return Bx = 5+0.4*Math.random();
+    } else if (selectedMix == "AC 22 bin H1") {
+        return Bx = 4.3+0.4*Math.random();
+    } else if (selectedMix == "AC 32 trag T3") {
+        return Bx = 4+0.4*Math.random();
+    }
+
+    let By = 0.95 + 0.1*Math.random();
+
+    let Ax = Bx - 1;
+    let Ay = By - 0.05;
+    let Cx = Bx + 1;
+    let Cy = By - 0.05;
+
+    let A = [
+        [Ax**2, Ax, 1],
+        [Bx**2, Bx, 1],
+        [Cx**2, Cx, 1]
+    ];
+
+    let B = [Ay, By, Cy];
+
+    function inverseMatrix(matrix) {
+        const det = matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) -
+                    matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) +
+                    matrix[0][2] * (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]);
+
+        if (det === 0) throw new Error("Matrix ist nicht invertierbar");
+
+        const inv = [
+            [ (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) / det,
+             -(matrix[0][1] * matrix[2][2] - matrix[0][2] * matrix[2][1]) / det,
+              (matrix[0][1] * matrix[1][2] - matrix[0][2] * matrix[1][1]) / det],
+            [-(matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) / det,
+              (matrix[0][0] * matrix[2][2] - matrix[0][2] * matrix[2][0]) / det,
+             -(matrix[0][0] * matrix[1][2] - matrix[0][2] * matrix[1][0]) / det],
+            [ (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]) / det,
+             -(matrix[0][0] * matrix[2][1] - matrix[0][1] * matrix[2][0]) / det,
+              (matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]) / det]
+        ];
+        return inv;
+    }
+
+    function multiplyMatrixVector(matrix, vector) {
+        return matrix.map(row => row.reduce((sum, value, index) => sum + value * vector[index], 0));
+    }
+
+    const A_inv = inverseMatrix(A);
+    const [a, b, c] = multiplyMatrixVector(A_inv, B);
+    
+    
+    const y = a*(bitumenAnteil*100)**2 + b*bitumenAnteil*100 + c;
+    console.log("this is:", y)
+    return y; 
+} 
+
 
 // Funktion zur Berechnung der Raumdichte
-function berechneRaumdichte(rhoRM, bitumenAnteil, eimerWerte) {
+function berechneRaumdichte(rhoRM, bitumenAnteil, eimerWerte, selectedMix) {
     const maxKorn = berechneGroesstkorn(eimerWerte);
     const hohlraumgehalt = getHohlraumgehalt(maxKorn);
 
@@ -236,11 +295,11 @@ function berechneRaumdichte(rhoRM, bitumenAnteil, eimerWerte) {
     let raumdichtenSet = [];
     for (let i = 0; i < 4; i++) {
         let HFB = Math.random() * (85 - 75) + 75; // Zufälliger Wert zwischen 75 und 85
-        let H_bit = (hohlraumgehalt / 100) - (HFB / 100) * (hohlraumgehalt / 100);
-
+        let H_bit = (hohlraumgehalt/100) - (HFB / 100) * (hohlraumgehalt/100);
+        console.log(H_bit)
         let rhoA = rhoRM - rhoRM * H_bit; // Berechnung der Raumdichte
-        let rhoA_rounded = rhoA.toFixed(3);
-        raumdichtenSet.push(rhoA_rounded);
+        let rhoA_fitted = berechneParabel(bitumenAnteil,selectedMix)*rhoA;
+        raumdichtenSet.push(rhoA_fitted.toFixed(3));
     }
     return raumdichtenSet;
 }

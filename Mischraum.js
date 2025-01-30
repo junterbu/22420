@@ -17,9 +17,9 @@ let mouse = new THREE.Vector2();
 
 // Globale Variable für den Bitumenanteil und die Rohdichte
 export let bitumenAnteil = 0;
-let dichteMaterial = 2.7; // Beispielwert für die Dichte des Materials (in g/cm³)
-let dichteFuller = 2.65;
-let dichteBitumen = 1.02; // Dichte von Bitumen (in g/cm³)
+let dichteMaterial = 2.82; // Beispielwert für die Dichte des Materials (in g/cm³)
+let dichteFuller = 2.73;
+export let dichteBitumen = 1.02; // Dichte von Bitumen (in g/cm³)
 
 // Event-Listener für den Bitumen-Schieberegler
 document.getElementById('bitumenRange').addEventListener('input', function() {
@@ -96,13 +96,10 @@ function berechneRohdichte() {
     } 
 
     let eimerWertFuller = eimerWerte['Füller'];
-    let Faktor = 100 / (100 - bitumenAnteil);
-    let MAG = (100 - eimerWertFuller) / Faktor;
-    let MAF = eimerWertFuller / Faktor;
-
-    let dichteGesamt = (dichteBitumen * bitumenAnteil +
-                        dichteFuller * MAF +
-                        dichteMaterial * MAG) / 100;
+    let AF = (eimerWertFuller*(100-bitumenAnteil))/100;
+    let AG = ((100-eimerWertFuller)*(100-bitumenAnteil))/100;
+    console.log(`this is: ${bitumenAnteil}`)
+    let dichteGesamt = 100/((AF/dichteFuller)+(AG/dichteMaterial)+(bitumenAnteil/dichteBitumen))
 
     bitumengehalt.push(bitumenAnteil)
     Rohdichten.push(dichteGesamt.toFixed(3));
