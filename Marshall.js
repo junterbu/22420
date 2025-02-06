@@ -144,7 +144,7 @@ function animate() {
             }
             console.log(raumdichten)
             console.log(Rohdichten)
-            console.log(y)
+            console.log(bitumengehalt.map((b,i) => ({x: b, y:raumdichten[i][0]})))
             context.clearRect(0, 0, canvas.width, canvas.height); // Lösche den alten Text
             context.font = '20px Arial'; // Kleinere Schrift für mehrere Werte
             let startX = 125;
