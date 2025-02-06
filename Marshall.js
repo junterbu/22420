@@ -113,15 +113,38 @@ function animate() {
 
         if (action && action.isRunning() === false && !animationCompleted) {
             animationCompleted = true; // Setze den Status auf abgeschlossen
-        
+            
+            let HFB = Math.random() * (85 - 75) + 75;
+
+            let y=[];
+            let Bx, By;
+
+            // Bestimme die Werte für Bx und By basierend auf aktuellerAsphalt
+            if (selectedMix === "AC 11 deck A1") {
+                Bx = 5 + 0.4 * Math.random();
+                By = 1
+            } else if (selectedMix === "AC 22 bin H1") {
+                Bx = 4.3 + 0.4 * Math.random();
+                By = 1
+            } else if (selectedMix === "AC 32 trag T3") {
+                Bx = 4 + 0.4 * Math.random();
+                By = 1
+            } else {
+                alert("Bitte Asphaltmischung auswählen!");;
+            }
+
+            for (let i = 0; i < bitumengehalt.length; i++) {
+                y.push(findPoint(Bx, By, bitumengehalt[i]));
+            }
         
             for (let i = 0; i < Rohdichten.length; i++) {
                 if (Rohdichten[i] !== null) {
-                    raumdichten[i] = berechneRaumdichte(Rohdichten[i], bitumengehalt[i], eimerWerte, selectedMix);
+                    raumdichten[i] = berechneRaumdichte(Rohdichten[i], eimerWerte, y[i], HFB);
                 }
             }
             console.log(raumdichten)
             console.log(Rohdichten)
+            console.log(y)
             context.clearRect(0, 0, canvas.width, canvas.height); // Lösche den alten Text
             context.font = '20px Arial'; // Kleinere Schrift für mehrere Werte
             let startX = 125;
@@ -193,9 +216,9 @@ function getHohlraumgehalt(maxKorn) {
         updatePlaneText("Marshall-Verdichter starten")
     }
 
-    // Zufälligen Wert im Bereich +-0.5 hinzufügen
-    const randomFactor = (1 - 0.95) * (Math.random()-0.5); // Bereich: [-0.025, 0.025]
-    const randomizedValue = baseValue + randomFactor;
+    // // Zufälligen Wert im Bereich +-0.5 hinzufügen
+    // const randomFactor = (1 - 0.95) * (Math.random()-0.5); // Bereich: [-0.025, 0.025]
+    // const randomizedValue = baseValue + randomFactor;
     return baseValue; // Auf zwei Dezimalstellen runden
 }
 
@@ -222,83 +245,87 @@ export function berechneGroesstkorn(eimeraktuell) {
     return maxKorn;
 }
 
-function berechneParabel(bitumenAnteil, selectedMix) {
-    let Bx = 0;
+let sol = 0
 
-    if (selectedMix == "AC 11 deck A1") {
-        return Bx = 5+0.4*Math.random();
-    } else if (selectedMix == "AC 22 bin H1") {
-        return Bx = 4.3+0.4*Math.random();
-    } else if (selectedMix == "AC 32 trag T3") {
-        return Bx = 4+0.4*Math.random();
-    }
-
-    let By = 0.95 + 0.1*Math.random();
+function findPoint(Bx, By, bitumenAnteil) {
+    console.log("Bx:", Bx);
 
     let Ax = Bx - 1;
-    let Ay = By - 0.05;
+    let Ay = By - 0.1;
     let Cx = Bx + 1;
     let Cy = By - 0.05;
 
+    // Erstelle die Matrix A und den Vektor B
     let A = [
-        [Ax**2, Ax, 1],
-        [Bx**2, Bx, 1],
-        [Cx**2, Cx, 1]
+        [Ax ** 2, Ax, 1],
+        [Bx ** 2, Bx, 1],
+        [Cx ** 2, Cx, 1]
     ];
-
     let B = [Ay, By, Cy];
 
-    function inverseMatrix(matrix) {
-        const det = matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) -
-                    matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) +
-                    matrix[0][2] * (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]);
+    // Löse das lineare Gleichungssystem Ax = B für x (also für a, b, c)
+    let [a, b, c] = solveLinearSystem(A, B);
 
-        if (det === 0) throw new Error("Matrix ist nicht invertierbar");
+    // Berechne y-Wert für das gegebene x
+    let y = a * bitumenAnteil ** 2 + b * bitumenAnteil + c;
+    return y;
+}
 
-        const inv = [
-            [ (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) / det,
-             -(matrix[0][1] * matrix[2][2] - matrix[0][2] * matrix[2][1]) / det,
-              (matrix[0][1] * matrix[1][2] - matrix[0][2] * matrix[1][1]) / det],
-            [-(matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) / det,
-              (matrix[0][0] * matrix[2][2] - matrix[0][2] * matrix[2][0]) / det,
-             -(matrix[0][0] * matrix[1][2] - matrix[0][2] * matrix[1][0]) / det],
-            [ (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]) / det,
-             -(matrix[0][0] * matrix[2][1] - matrix[0][1] * matrix[2][0]) / det,
-              (matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]) / det]
-        ];
-        return inv;
-    }
+// Funktion zur Lösung eines linearen Gleichungssystems (Matrix Inversion)
+function solveLinearSystem(A, B) {
+    let invA = invertMatrix(A);
+    return multiplyMatrixVector(invA, B);
+}
 
-    function multiplyMatrixVector(matrix, vector) {
-        return matrix.map(row => row.reduce((sum, value, index) => sum + value * vector[index], 0));
-    }
+// Matrix-Inversion mit der Cramer'schen Regel
+function invertMatrix(matrix) {
+    let det = 
+        matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) -
+        matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) +
+        matrix[0][2] * (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]);
 
-    const A_inv = inverseMatrix(A);
-    const [a, b, c] = multiplyMatrixVector(A_inv, B);
-    
-    
-    const y = a*(bitumenAnteil*100)**2 + b*bitumenAnteil*100 + c;
-    console.log("this is:", y)
-    return y; 
-} 
+    if (det === 0) throw new Error("Matrix ist nicht invertierbar");
 
+    let inv = [
+        [
+            (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) / det,
+            -(matrix[0][1] * matrix[2][2] - matrix[0][2] * matrix[2][1]) / det,
+            (matrix[0][1] * matrix[1][2] - matrix[0][2] * matrix[1][1]) / det
+        ],
+        [
+            -(matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) / det,
+            (matrix[0][0] * matrix[2][2] - matrix[0][2] * matrix[2][0]) / det,
+            -(matrix[0][0] * matrix[1][2] - matrix[0][2] * matrix[1][0]) / det
+        ],
+        [
+            (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]) / det,
+            -(matrix[0][0] * matrix[2][1] - matrix[0][1] * matrix[2][0]) / det,
+            (matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]) / det
+        ]
+    ];
+    return inv;
+}
+
+// Matrix-Vektor-Multiplikation
+function multiplyMatrixVector(matrix, vector) {
+    return matrix.map(row => row.reduce((sum, value, index) => sum + value * vector[index], 0));
+}
 
 // Funktion zur Berechnung der Raumdichte
-function berechneRaumdichte(rhoRM, bitumenAnteil, eimerWerte, selectedMix) {
+function berechneRaumdichte(rhoRM, eimerWerte, y, HFB) {
     const maxKorn = berechneGroesstkorn(eimerWerte);
     const hohlraumgehalt = getHohlraumgehalt(maxKorn);
 
     if (!hohlraumgehalt) {
         return Array(4).fill(null); // Wenn keine gültigen Werte, fülle mit null
     }
-
     let raumdichtenSet = [];
     for (let i = 0; i < 4; i++) {
-        let HFB = Math.random() * (85 - 75) + 75; // Zufälliger Wert zwischen 75 und 85
         let H_bit = (hohlraumgehalt/100) - (HFB / 100) * (hohlraumgehalt/100);
         console.log(H_bit)
         let rhoA = rhoRM - rhoRM * H_bit; // Berechnung der Raumdichte
-        let rhoA_fitted = berechneParabel(bitumenAnteil,selectedMix)*rhoA;
+        console.log(rhoA)
+        let rhoA_fitted = rhoA*y-Math.random()*0.01;
         raumdichtenSet.push(rhoA_fitted.toFixed(3));
     }
     return raumdichtenSet;

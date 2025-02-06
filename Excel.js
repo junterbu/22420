@@ -1,3 +1,5 @@
+// import Chart from "chart.js/auto";
+
 export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdichten, raumdichten, sieblinieCanvas) {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF();
@@ -74,6 +76,48 @@ export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdi
         body: raumData,
     });
     startY = pdf.lastAutoTable.finalY + 10;
+
+    // Chart: Optimaler Bitumengehalt
+    const chartCanvas = document.createElement("canvas");
+    chartCanvas.width = 800;
+    chartCanvas.height = 400;
+
+    new Chart(chartCanvas, {
+        type: "scatter",
+        data: {
+            datasets: [
+                {
+                    label: "Raumdichten",
+                    data: bitumengehalt.map((b, i) => ({ x: b, y: raumdichten[i] })),
+                    borderColor: "blue",
+                    backgroundColor: "blue",
+                    showLine: true,
+                    tension: 0.3,
+                },
+            ],
+        },
+        options: {
+            responsive: false,
+            plugins: {
+                legend: { display: true },
+            },
+            scales: {
+                x: {
+                    type: "linear",
+                    title: { display: true, text: "Bitumengehalt [%]" },
+                },
+                y: {
+                    title: { display: true, text: "Raumdichte [g/cm³]" },
+                },
+            },
+        },
+    });
+
+    // Add Chart to PDF
+    pdf.text("Optimaler Bitumengehalt:", 10, startY);
+    startY += 5;
+    const chartImage = chartCanvas.toDataURL("image/png");
+    pdf.addImage(chartImage, "PNG", 10, startY, 180, 100);
 
     // Speichern der PDF
     pdf.save("Laborbericht.pdf");
