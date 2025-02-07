@@ -70,7 +70,13 @@ function loadMarshallModel() {
                         const raycaster = new THREE.Raycaster();
                         raycaster.setFromCamera(mouse, camera);
                     
-                        const intersects = raycaster.intersectObject(buttonOn, true);
+                        let intersects;
+                        if (isMobileDevice()) {
+                            raycaster.params.Points.threshold = 0.2; // Vergrößert den Touch-Bereich
+                            intersects = raycaster.intersectObject(buttonOn, true);
+                        } else {
+                            intersects = raycaster.intersectObject(buttonOn);
+                        }
                         if (intersects.length > 0) {
                             console.log('Button "button_on" wurde angeklickt!');
                             playAnimation();
@@ -88,6 +94,13 @@ function loadMarshallModel() {
             console.error('Fehler beim Laden des Modells:', error);
         }
     );
+}
+
+function berechneMittelwerte(raumdichten) {
+    return raumdichten.map(row => {
+        const sum = row.reduce((acc, val) => acc + parseFloat(val), 0);
+        return (sum / row.length).toFixed(3); // Mittelwert berechnen & auf 3 Nachkommastellen runden
+    });
 }
 
 let animationCompleted = false; // Variable zur Verfolgung des Animationsstatus
@@ -144,7 +157,10 @@ function animate() {
             }
             console.log(raumdichten)
             console.log(Rohdichten)
-            console.log(bitumengehalt.map((b,i) => ({x: b, y:raumdichten[i][0]})))
+            console.log(bitumengehalt.map((b, i) => ({
+                x: b,
+                y: berechneMittelwerte(raumdichten)
+            })))
             context.clearRect(0, 0, canvas.width, canvas.height); // Lösche den alten Text
             context.font = '20px Arial'; // Kleinere Schrift für mehrere Werte
             let startX = 125;
@@ -272,13 +288,13 @@ function findPoint(Bx, By, bitumenAnteil) {
 }
 
 // Funktion zur Lösung eines linearen Gleichungssystems (Matrix Inversion)
-function solveLinearSystem(A, B) {
+export function solveLinearSystem(A, B) {
     let invA = invertMatrix(A);
     return multiplyMatrixVector(invA, B);
 }
 
 // Matrix-Inversion mit der Cramer'schen Regel
-function invertMatrix(matrix) {
+export function invertMatrix(matrix) {
     let det = 
         matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) -
         matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) +
@@ -307,7 +323,7 @@ function invertMatrix(matrix) {
 }
 
 // Matrix-Vektor-Multiplikation
-function multiplyMatrixVector(matrix, vector) {
+export function multiplyMatrixVector(matrix, vector) {
     return matrix.map(row => row.reduce((sum, value, index) => sum + value * vector[index], 0));
 }
 
