@@ -46,17 +46,18 @@ function loadMarshallModel() {
                             buttonOn = child;
                             console.log('Button "Button_on" gefunden:', buttonOn);
                         
-                            // Falls ein mobiles Gerät erkannt wird, eine größere unsichtbare Hitbox hinzufügen
                             if (isMobileDevice()) {
-                                let hitboxGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.4); // Größere Klick-Fläche
-                                let hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false });
+                                let hitboxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5); // Größere Hitbox
+                                let hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Unsichtbar
                                 let hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
                                 hitbox.position.copy(buttonOn.position);
                                 scene.add(hitbox);
-                                buttonOn.userData.hitbox = hitbox; // Speichert die Hitbox in der Button-Referenz
-                                console.log("xyz")
+                                console.log("Hitbox-Position:", hitbox.position);
+                                console.log("Hitbox ist Teil der Szene:", scene.children.includes(hitbox));
+                                buttonOn = hitbox; // WICHTIG: Ersetze buttonOn durch die Hitbox!
+                                console.log("Hitbox für buttonOn erstellt!");
                             }
-                        }
+                        }                        
                         if (child.name === 'Probekörper') {
                             probekörper = child;
                             probekörper.visible = false; // Standardmäßig unsichtbar
@@ -80,13 +81,9 @@ function loadMarshallModel() {
                         
                         const raycaster = new THREE.Raycaster();
                         raycaster.setFromCamera(mouse, camera);
-                    
-                        let intersects;
-                        if (isMobileDevice() && buttonOn.userData.hitbox) {
-                            intersects = raycaster.intersectObject(buttonOn.userData.hitbox, true); // Prüft die Hitbox statt den Button
-                        } else {
-                            intersects = raycaster.intersectObject(buttonOn, true);
-                        }
+
+                        let intersects = raycaster.intersectObject(buttonOn, true);
+
                         if (intersects.length > 0) {
                             console.log('Button "button_on" wurde angeklickt!');
                             playAnimation();
