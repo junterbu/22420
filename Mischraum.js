@@ -161,7 +161,13 @@ window.addEventListener(inputEvent, function(event) {
     raycaster.setFromCamera(mouse, camera);
 
     if (mixButton) {
-        let intersects = raycaster.intersectObjects([mixButton]);
+        let intersects;
+        if (isMobileDevice()) {
+            raycaster.params.Points.threshold = 0.2; // Vergrößert den Touch-Bereich
+            intersects = raycaster.intersectObjects([mixButton], true);
+        } else {
+            intersects = raycaster.intersectObjects([mixButton]);
+        }
         if (intersects.length > 0) {
             console.log("MixButton wurde angeklickt!");
             berechneRohdichte();

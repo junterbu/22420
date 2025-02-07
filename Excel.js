@@ -1,4 +1,4 @@
-// import Chart from "chart.js/auto";
+import { solveLinearSystem, invertMatrix, multiplyMatrixVector } from "./Marshall.js";
 
 export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdichten, raumdichten, sieblinieCanvas) {
     const { jsPDF } = window.jspdf;
@@ -7,12 +7,12 @@ export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdi
 
     // Titel
     pdf.setFontSize(16);
-    pdf.text("Virtueller Laborbericht - Asphaltmischung", 105, startY, { align: "center" });
+    pdf.text("Virtueller Laborbericht", 105, startY, { align: "center" });
     startY += 10;
 
     // Mischgut
     pdf.setFontSize(12);
-    pdf.text(`Asphaltmischung: ${mischgutName}`, 10, startY);
+    pdf.text(`Asphaltmischung: ${mischgutName}`, 12, startY);
     startY += 10;
 
     // Eimerwerte Tabelle
@@ -62,9 +62,17 @@ export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdi
         head: [rohHeaders],
         body: rohData,
     });
-    startY = pdf.lastAutoTable.finalY + 10;    
+
+    // ---- Wechsel auf eine neue Seite für den Plot ----
+    pdf.addPage();
+    startY = 10; // Y-Position zurücksetzen
+
+    pdf.setFontSize(16);
+    pdf.text("Virtueller Laborbericht", 105, startY, { align: "center" });
+    startY += 10;
 
     // Raumdichten
+    pdf.setFontSize(12)
     pdf.text("Raumdichten [g/cm³]:", 10, startY);
     startY += 5;
 
@@ -77,6 +85,108 @@ export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdi
     });
     startY = pdf.lastAutoTable.finalY + 10;
 
-    // Speichern der PDF
-    pdf.save("Laborbericht.pdf");
+    // Scatterplot als Canvas generieren
+    const scatterCanvas = document.createElement("canvas");
+    scatterCanvas.width = 400;
+    scatterCanvas.height = 300;
+    document.body.appendChild(scatterCanvas);
+
+    const ctx = scatterCanvas.getContext("2d");
+
+    function berechneMittelwerte(raumdichten) {
+        return raumdichten.map(row => {
+            const sum = row.reduce((acc, val) => acc + parseFloat(val), 0);
+            return (sum / row.length).toFixed(3); // Mittelwert berechnen & auf 3 Nachkommastellen runden
+        });
+    }
+
+    let mittelwert = berechneMittelwerte(raumdichten)
+
+    function findPoint(raumdichten, bitumengehalt) {
+        let Ax = bitumengehalt[0];
+        let Bx = bitumengehalt[1];
+        let Cx = bitumengehalt[2];
+
+        
+
+        let Ay = raumdichten[0];
+        let By = raumdichten[1];
+        let Cy = raumdichten[2];
+
+     
+        // Erstelle die Matrix A und den Vektor B
+        let A = [
+            [Ax ** 2, Ax, 1],
+            [Bx ** 2, Bx, 1],
+            [Cx ** 2, Cx, 1]
+        ];
+        let B = [Ay, By, Cy];
+    
+        // Löse das lineare Gleichungssystem Ax = B für x (also für a, b, c)
+        let [a, b, c] = solveLinearSystem(A, B);
+        return [a,b,c];
+    }
+
+    const trendData = [];
+    let [a,b,c] = findPoint(mittelwert, bitumengehalt);
+    for (let x = 3; x <= 7; x += 0.1) {
+        trendData.push({
+            x,
+            y: a * x ** 2 + b * x + c
+        });
+    }
+
+    new Chart(ctx, {
+        type: "scatter",
+        data: {
+            datasets: [
+                {
+                    label: "Raumdichte [g/cm³]",
+                    data: bitumengehalt.map((b, i) => ({
+                        x: b,
+                        y: mittelwert[i]
+                    })),
+                    backgroundColor: "blue",
+                    pointRadius: 6
+                },
+                {
+                    label: "Trendlinie",
+                    data: trendData,
+                    borderColor: "grey",
+                    borderWidth: 1,
+                    borderDash: [1, 1], // Punktierte Linie
+                    fill: false,
+                    type: "line"
+                }
+            ]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: { display: true, text: "Bitumengehalt [%]" },
+                    min: 3,
+                    max: 7
+                },
+                y: {
+                    title: { display: true, text: "Raumdichte [g/cm³]" },
+                    min: 2.1,
+                    max: 2.7
+                }
+            }
+        }
+    });
+
+    // Warten, bis der Chart gezeichnet wurde
+    setTimeout(() => {
+        const image = scatterCanvas.toDataURL("image/png");
+        pdf.text("Raumdichte-Plot:", 10, startY);
+        startY += 5;
+        pdf.addImage(image, "PNG", 10, startY, 180, 100);
+
+        // Entfernen des temporären Canvas
+        document.body.removeChild(scatterCanvas);
+
+        // PDF speichern
+        pdf.save("Laborbericht.pdf");
+    }, 500);
 }
