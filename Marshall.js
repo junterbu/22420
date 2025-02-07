@@ -46,19 +46,21 @@ function loadMarshallModel() {
                             buttonOn = child;
                             console.log('Button "Button_on" gefunden:', buttonOn);
                         }
-                        if (isMobileDevice() && buttonOn) {
-                            let drückGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-                            let drückMaterial = new THREE.MeshBasicMaterial({ visible: false });
-                            let drückbox = new THREE.Mesh(drückGeometry, drückMaterial);
-                            drückbox.position.copy(buttonOn.position);
-                            scene.add(drückbox);
-                            buttonOn = drückbox;
-                        }
+                        
                         if (child.name === 'Probekörper') {
                             probekörper = child;
                             probekörper.visible = false; // Standardmäßig unsichtbar
                             console.log('Probekörper gefunden:', probekörper);
                         }
+                    }
+                    if (isMobileDevice() && buttonOn) {
+                        let drückGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+                        let drückMaterial = new THREE.MeshBasicMaterial({ visible: false });
+                        let drückbox = new THREE.Mesh(drückGeometry, drückMaterial);
+                        drückbox.position.copy(buttonOn.position);
+                        scene.add(drückbox);
+                        buttonOn = drückbox;
+                        console.log("// Raycaster auf die Hitbox anwenden")
                     }
                 });
 
