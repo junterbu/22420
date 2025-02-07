@@ -45,12 +45,13 @@ function loadMarshallModel() {
                         if (child.name === 'Button_on') {
                             buttonOn = child;
                             console.log('Button "Button_on" gefunden:', buttonOn);
+                            console.log("button on: ", buttonOn.position)
                         
                             if (isMobileDevice()) {
                                 let hitboxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5); // Größere Hitbox
                                 let hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Unsichtbar
                                 let hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
-                                hitbox.position.copy(buttonOn.position);
+                                hitbox.position.copy(-8.6636, 0.3642411, 1);
                                 scene.add(hitbox);
                                 console.log("Hitbox-Position:", hitbox.position);
                                 console.log("Hitbox ist Teil der Szene:", scene.children.includes(hitbox));
