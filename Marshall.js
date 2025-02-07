@@ -45,6 +45,16 @@ function loadMarshallModel() {
                         if (child.name === 'Button_on') {
                             buttonOn = child;
                             console.log('Button "Button_on" gefunden:', buttonOn);
+                        
+                            // Falls ein mobiles Gerät erkannt wird, eine größere unsichtbare Hitbox hinzufügen
+                            if (isMobileDevice()) {
+                                let hitboxGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.4); // Größere Klick-Fläche
+                                let hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false });
+                                let hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+                                hitbox.position.copy(buttonOn.position);
+                                scene.add(hitbox);
+                                buttonOn.userData.hitbox = hitbox; // Speichert die Hitbox in der Button-Referenz
+                            }
                         }
                         
                         if (child.name === 'Probekörper') {
@@ -52,15 +62,6 @@ function loadMarshallModel() {
                             probekörper.visible = false; // Standardmäßig unsichtbar
                             console.log('Probekörper gefunden:', probekörper);
                         }
-                    }
-                    if (isMobileDevice() && buttonOn) {
-                        let drückGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-                        let drückMaterial = new THREE.MeshBasicMaterial({ visible: false });
-                        let drückbox = new THREE.Mesh(drückGeometry, drückMaterial);
-                        drückbox.position.copy(buttonOn.position);
-                        scene.add(drückbox);
-                        buttonOn = drückbox;
-                        console.log("// Raycaster auf die Hitbox anwenden")
                     }
                     if (isMobileDevice() && buttonOn) {
                         buttonOn.scale.set(1.5, 1.5, 1.5);
@@ -84,11 +85,10 @@ function loadMarshallModel() {
                         raycaster.setFromCamera(mouse, camera);
                     
                         let intersects;
-                        if (isMobileDevice()) {
-                            raycaster.params.Points.threshold = 0.2; // Vergrößert den Touch-Bereich
-                            intersects = raycaster.intersectObjects([buttonOn], true);
+                        if (isMobileDevice() && buttonOn.userData.hitbox) {
+                            intersects = raycaster.intersectObject(buttonOn.userData.hitbox, true); // Prüft die Hitbox statt den Button
                         } else {
-                            intersects = raycaster.intersectObjects([buttonOn]);
+                            intersects = raycaster.intersectObject(buttonOn, true);
                         }
                         if (intersects.length > 0) {
                             console.log('Button "button_on" wurde angeklickt!');
