@@ -54,6 +54,7 @@ function loadMarshallModel() {
                                 hitbox.position.copy(buttonOn.position);
                                 scene.add(hitbox);
                                 buttonOn.userData.hitbox = hitbox; // Speichert die Hitbox in der Button-Referenz
+                                console.log("xyz")
                             }
                         }
                         if (child.name === 'Probekörper') {
