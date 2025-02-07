@@ -86,9 +86,9 @@ function loadMarshallModel() {
                         let intersects;
                         if (isMobileDevice()) {
                             raycaster.params.Points.threshold = 0.2; // Vergrößert den Touch-Bereich
-                            intersects = raycaster.intersectObjects([mixButton], true);
+                            intersects = raycaster.intersectObjects([buttonOn], true);
                         } else {
-                            intersects = raycaster.intersectObjects([mixButton]);
+                            intersects = raycaster.intersectObjects([buttonOn]);
                         }
                         if (intersects.length > 0) {
                             console.log('Button "button_on" wurde angeklickt!');
