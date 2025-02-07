@@ -133,6 +133,14 @@ loader.load('Assets/Mixbutton.glb', function(loadedGltf) {
                 console.log("MixButton gefunden:", mixButton); // Ausgabe zur Überprüfung
             }
         }
+        if (isMobileDevice() && mixButton) {
+            let hitboxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3); // Größere unsichtbare Hitbox
+            let hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Unsichtbar machen
+            let hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+            hitbox.position.copy(mixButton.position); // Gleiche Position wie der Button
+            scene.add(hitbox);
+            mixButton = hitbox; // Raycaster auf die Hitbox anwenden
+        }        
     });
 
     // Überprüfen, ob MixButton gefunden wurde

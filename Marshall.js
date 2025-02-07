@@ -46,6 +46,14 @@ function loadMarshallModel() {
                             buttonOn = child;
                             console.log('Button "Button_on" gefunden:', buttonOn);
                         }
+                        if (isMobileDevice() && buttonOn) {
+                            let hitboxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+                            let hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false });
+                            let hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+                            hitbox.position.copy(buttonOn.position);
+                            scene.add(hitbox);
+                            buttonOn = hitbox;
+                        }
                         if (child.name === 'Probekörper') {
                             probekörper = child;
                             probekörper.visible = false; // Standardmäßig unsichtbar
