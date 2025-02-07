@@ -47,12 +47,12 @@ function loadMarshallModel() {
                             console.log('Button "Button_on" gefunden:', buttonOn);
                         }
                         if (isMobileDevice() && buttonOn) {
-                            let hitboxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-                            let hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false });
-                            let hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
-                            hitbox.position.copy(buttonOn.position);
-                            scene.add(hitbox);
-                            buttonOn = hitbox;
+                            let drückGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+                            let drückMaterial = new THREE.MeshBasicMaterial({ visible: false });
+                            let drückbox = new THREE.Mesh(drückGeometry, drückMaterial);
+                            drückbox.position.copy(buttonOn.position);
+                            scene.add(drückbox);
+                            buttonOn = drückbox;
                         }
                         if (child.name === 'Probekörper') {
                             probekörper = child;
