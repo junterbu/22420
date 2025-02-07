@@ -56,15 +56,11 @@ function loadMarshallModel() {
                                 buttonOn.userData.hitbox = hitbox; // Speichert die Hitbox in der Button-Referenz
                             }
                         }
-                        
                         if (child.name === 'Probekörper') {
                             probekörper = child;
                             probekörper.visible = false; // Standardmäßig unsichtbar
                             console.log('Probekörper gefunden:', probekörper);
                         }
-                    }
-                    if (isMobileDevice() && buttonOn) {
-                        buttonOn.scale.set(1.5, 1.5, 1.5);
                     }
                 });
 
