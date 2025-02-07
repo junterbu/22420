@@ -62,6 +62,9 @@ function loadMarshallModel() {
                         buttonOn = drückbox;
                         console.log("// Raycaster auf die Hitbox anwenden")
                     }
+                    if (isMobileDevice() && buttonOn) {
+                        buttonOn.scale.set(1.5, 1.5, 1.5);
+                    }
                 });
 
                 // Überprüfen, ob der Button gefunden wurde
@@ -83,9 +86,9 @@ function loadMarshallModel() {
                         let intersects;
                         if (isMobileDevice()) {
                             raycaster.params.Points.threshold = 0.2; // Vergrößert den Touch-Bereich
-                            intersects = raycaster.intersectObject(buttonOn, true);
+                            intersects = raycaster.intersectObjects([mixButton], true);
                         } else {
-                            intersects = raycaster.intersectObject(buttonOn);
+                            intersects = raycaster.intersectObjects([mixButton]);
                         }
                         if (intersects.length > 0) {
                             console.log('Button "button_on" wurde angeklickt!');
