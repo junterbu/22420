@@ -51,7 +51,7 @@ function loadMarshallModel() {
                                 let hitboxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5); // Größere Hitbox
                                 let hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Unsichtbar
                                 let hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
-                                hitbox.position.set(-8.5, 0.025, 1);
+                                hitbox.position.set(-8.33631535, 0.36424, 1);
                                 scene.add(hitbox);
                                 console.log("Hitbox-Position:", hitbox.position);
                                 console.log("Hitbox ist Teil der Szene:", scene.children.includes(hitbox));
