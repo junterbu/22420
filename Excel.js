@@ -153,10 +153,11 @@ export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdi
                     label: "Trendlinie",
                     data: trendData,
                     borderColor: "grey",
-                    borderWidth: 1,
+                    borderWidth: 3,
                     borderDash: [1, 1], // Punktierte Linie
                     fill: false,
-                    type: "line"
+                    type: "line",
+                    pointRadius: 0
                 }
             ]
         },
