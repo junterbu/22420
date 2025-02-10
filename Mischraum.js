@@ -140,7 +140,6 @@ loader.load('Assets/Mixbutton.glb', function(loadedGltf) {
             hitbox.position.copy(mixButton.position); // Gleiche Position wie der Button
             scene.add(hitbox);
             mixButton = hitbox; 
-            console.log("// Raycaster auf die Hitbox anwenden")
         }        
     });
 
