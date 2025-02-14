@@ -90,7 +90,17 @@ function berechneRohdichte() {
         toMarshallMarker.visible = true;
     } else if (currentStep >= 3) {
         console.warn("Alle drei Rohdichten wurden bereits berechnet.");
-        alert("Alle drei Rohdichten wurden bereits berechnet.");
+        
+        // Benutzer-Interaktion für das Zurücksetzen
+        let reset = confirm("Alle drei Rohdichten wurden bereits berechnet. Möchten Sie die Berechnungen zurücksetzen?");
+        if (reset) {
+            currentStep = 0;
+            Rohdichten = [];
+            bitumengehalt = [];
+            updateRohdichteDisplay();
+            alert("Die Berechnung wurde zurückgesetzt. Sie können nun erneut Rohdichten berechnen.");
+            toMarshallMarker.visible = false;
+        }
         toMarshallMarker.visible = true;
         return;
     } 
