@@ -151,7 +151,8 @@ function animate() {
                 Bx = 4 + 0.4 * Math.random();
                 By = 1
             } else {
-                alert("Bitte Asphaltmischung auswählen!");;
+                alert("Bitte Asphaltmischung auswählen!");
+                return;
             }
 
             for (let i = 0; i < bitumengehalt.length; i++) {
@@ -275,7 +276,7 @@ function findPoint(Bx, By, bitumenAnteil) {
     console.log("Bx:", Bx);
 
     let Ax = Bx - 1;
-    let Ay = By - 0.1;
+    let Ay = By - 0.05;
     let Cx = Bx + 1;
     let Cy = By - 0.005;
 

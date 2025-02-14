@@ -156,6 +156,7 @@ export function goToLager() {
     document.getElementById('uiContainer').style.display = 'none';
     leaveMischraum.visible = false;
     leaveMarshall.visible = false;
+    lagerproberaumMarker.visible = true; 
 }
 
 export function fromLagertoProberaum() {
@@ -191,9 +192,13 @@ export function fromLagertoProberaum() {
 
             index++;
             setTimeout(() => requestAnimationFrame(animateAlongPath), 30); // Verzögerung zwischen Frames
+            leaveproberaumMarker.visible = false;
+            proberaumlagerMarker.visible = false;
         } else {
             // Animation beendet
             console.log("Kamera hat den Proberaum erreicht.");
+            leaveproberaumMarker.visible = true;
+            proberaumlagerMarker.visible = true;
         }
     }   
 
@@ -205,6 +210,8 @@ export function fromLagertoProberaum() {
 
     leaveMarshall.visible = false;
     leaveMischraum.visible = false;
+    lagerproberaumMarker.visible = false;
+
 }
 
 export function fromProberaumtoLager() {
@@ -240,9 +247,12 @@ export function fromProberaumtoLager() {
 
             index++;
             setTimeout(() => requestAnimationFrame(animateAlongPath), 30); // Verzögerung zwischen Frames
+            leaveproberaumMarker.visible = false;
+            proberaumlagerMarker.visible = false;
         } else {
             // Animation beendet
             console.log("Kamera hat den Proberaum erreicht.");
+            leaveproberaumMarker.visible = true;
         }
     }   
 
@@ -289,9 +299,12 @@ export function goToMischraum() {
 
             index++;
             setTimeout(() => requestAnimationFrame(animateAlongPath), 30); // Verzögerung zwischen Frames
+            leaveproberaumMarker.visible = false;
+            proberaumlagerMarker.visible = false;
         } else {
             // Animation beendet
             console.log("Kamera hat den Proberaum erreicht.");
+            leaveproberaumMarker.visible = true;
             
             const targetPosition = new THREE.Vector3(-8, 1.5, 7); // Neue Zielposition
             const targetLookAt = new THREE.Vector3(-8.5, 1.5, 6); // Zielblickpunkt im Mischraum
@@ -362,12 +375,12 @@ export function leaveView() {
 }
 
 export function toMarshall() {
-    //Wegpunkte vom Gesteinsraum ins Lager
+    // Wegpunkte vom Gesteinsraum ins Lager
     const points = [
         new THREE.Vector3(-8, 1.5, 7),    // Startpunkt
         new THREE.Vector3(-2, 1.5, 6),    // Weitere Zwischenstation
         new THREE.Vector3(-2, 1.5, 3),    // Weitere Zwischenstation
-        new THREE.Vector3(MarshallViewpoint.x, MarshallViewpoint.y, MarshallViewpoint.z),    // Endpunkt
+        new THREE.Vector3(MarshallViewpoint.x, MarshallViewpoint.y, MarshallViewpoint.z)    // Endpunkt
     ];
 
     // Erstelle die Kurve
@@ -377,8 +390,8 @@ export function toMarshall() {
     const numPoints = 300;
     const curvePoints = curve.getPoints(numPoints);
 
-    // Animation über den Pfad
     let index = 0;
+
     function animateAlongPath() {
         if (index < curvePoints.length - 1) {
             const currentPoint = curvePoints[index];
@@ -386,29 +399,38 @@ export function toMarshall() {
 
             // Setze die Kamera-Position
             camera.position.copy(currentPoint);
-            controls.target.copy(nextPoint); // Setze Zielpunkt auf nächsten Punkt
+            controls.target.copy(nextPoint);
             controls.update();
 
             index++;
-            setTimeout(() => requestAnimationFrame(animateAlongPath), 30); // Verzögerung zwischen Frames
+            setTimeout(() => requestAnimationFrame(animateAlongPath), 30);
         } else {
-            // Animation beendet
             console.log("Kamera hat den Proberaum erreicht.");
             leaveMarshall.visible = true;
-        }
-
+            // Animation beendet
+            console.log("Kamera hat den Proberaum erreicht.");
+            leaveproberaumMarker.visible = true;
+            
+            const targetPosition = new THREE.Vector3(MarshallViewpoint.x, MarshallViewpoint.y, MarshallViewpoint.z); // Neue Zielposition
+            const targetLookAt = new THREE.Vector3(-7.5, 1.5, 1); // Zielblickpunkt im Mischraum
         
-    }   
+            // Kamera animiert bewegen
+            animateCamera(targetPosition, targetLookAt);
+            // Optional: Kontrollziele direkt setzen
+            controls.target.set(targetPosition.x, targetPosition.y, targetPosition.z);
+            controls.update();
+        }
+    }
     leaveMischraum.visible = false;
-    // Start der Animation
+    
+    // Start der Bewegung entlang des Pfades
     animateAlongPath();
 
-    // Blende den `uiContainer`-Schieberegler aus
+    // UI-Elemente ausblenden
     document.getElementById('uiContainer').style.display = 'none';
-
-    // Blende den `bitumenUI`-Schieberegler ein
     document.getElementById('bitumenUI').style.display = 'none';
 }
+
 
 //Orbit Controls
 export let controls = new OrbitControls(camera, renderer.domElement);

@@ -162,14 +162,45 @@ export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdi
             ]
         },
         options: {
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 18 // Größere Schriftgröße für die Legende
+                        }
+                    }
+                }
+            },
             scales: {
                 x: {
-                    title: { display: true, text: "Bitumengehalt [%]" },
+                    title: { 
+                        display: true, 
+                        text: "Bitumengehalt [%]",
+                        font: {
+                            size: 18 // Größere Schriftgröße für X-Achse
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 16 // Größere Wertebeschriftung auf der X-Achse
+                        }
+                    },
                     min: 3,
                     max: 7
                 },
                 y: {
-                    title: { display: true, text: "Raumdichte [g/cm³]" },
+                    title: { 
+                        display: true, 
+                        text: "Raumdichte [g/cm³]",
+                        font: {
+                            size: 18 // Größere Schriftgröße für Y-Achse
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 16 // Größere Wertebeschriftung auf der Y-Achse
+                        }
+                    },
                     min: 2.1,
                     max: 2.7
                 }
