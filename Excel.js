@@ -16,7 +16,7 @@ export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdi
     startY += 10;
 
     // Eimerwerte Tabelle
-    pdf.text("Eimerwerte [%]:", 10, startY);
+    pdf.text("Gesteinssieblinie [%]:", 10, startY);
     startY += 5;
 
     const eimerHeaders = ["Füller", "0/2", "2/4", "4/8", "8/11", "11/16", "16/22", "22/32"];
