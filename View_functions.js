@@ -313,7 +313,7 @@ export function goToMischraum() {
             animateCamera(targetPosition, targetLookAt);
         
             // Optional: Kontrollziele direkt setzen
-            controls.target.set(targetPosition.x, targetPosition.y, targetPosition.z);
+            controls.target.set(targetLookAt.x, targetLookAt.y, targetLookAt.z);
             controls.update();
             controls.enableZoom = false;
             controls.enablePan = false;
@@ -419,6 +419,11 @@ export function toMarshall() {
             // Optional: Kontrollziele direkt setzen
             controls.target.set(targetPosition.x, targetPosition.y, targetPosition.z);
             controls.update();
+
+            // Erlaube nur Rotation, kein Zoom
+            controls.enableZoom = false;
+            controls.enablePan = false;
+            controls.enableRotate = true;
         }
     }
     leaveMischraum.visible = false;
