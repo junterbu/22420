@@ -64,19 +64,31 @@ export const quizFragen = {
     }
 };
 
+let beantworteteRäume = new Set();
+
 export function zeigeQuiz(raum) {
+    // Prüfen, ob das Quiz für diesen Raum bereits gezeigt wurde
+    if (beantworteteRäume.has(raum)) {
+        return; // Falls ja, nichts tun (kein Quiz anzeigen)
+    }
+
     if (quizFragen[raum]) {
+        beantworteteRäume.add(raum); // Raum als "gefragt" markieren
+
         document.getElementById("quizFrage").innerText = quizFragen[raum].frage;
         const optionenContainer = document.getElementById("quizOptionen");
         optionenContainer.innerHTML = ""; // Vorherige Buttons löschen
 
-        quizFragen[raum].optionen.forEach(option => {
+        // Antwortmöglichkeiten zufällig mischen
+        let gemischteOptionen = [...quizFragen[raum].optionen].sort(() => Math.random() - 0.5);
+
+        gemischteOptionen.forEach(option => {
             const button = document.createElement("button");
             button.innerText = option;
-            button.classList.add("quiz-option"); // Stil bleibt modern
+            button.classList.add("quiz-option");
             button.addEventListener("click", () => {
                 speicherePunkte(raum, option);
-                schließeQuiz(); // Schließt das Quiz direkt nach Klick
+                schließeQuiz();
             });
             optionenContainer.appendChild(button);
         });
