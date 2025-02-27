@@ -321,6 +321,7 @@ export function goToMischraum() {
             controls.enablePan = false;
             controls.enableRotate = true;
             leaveMischraum.visible = true;
+            document.getElementById('bitumenUI').style.display = 'block';
         }
 
         
@@ -334,7 +335,7 @@ export function goToMischraum() {
     document.getElementById('uiContainer').style.display = 'none';
 
     // Blende den `bitumenUI`-Schieberegler ein
-    document.getElementById('bitumenUI').style.display = 'block';
+    // document.getElementById('bitumenUI').style.display = 'block';
 }
 
 export function leaveView() {
