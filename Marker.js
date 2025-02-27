@@ -1,4 +1,9 @@
 import * as THREE from "three";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+
+// Firestore-Instanz holen
+const db = window.firebaseDB;
+
 
 // Funktion zum Erstellen eines Markers
 function createMarker(h, b, pxx, pxz, text, x, y, z, r) {
@@ -64,30 +69,64 @@ export const quizFragen = {
     }
 };
 
+async function getDatabase() {
+    while (!window.firebaseDB) {
+        await new Promise(resolve => setTimeout(resolve, 100)); // Warten, bis Firebase geladen ist
+    }
+    return window.firebaseDB;
+}
+
+// Lade gespeicherte User-ID oder zeige das Eingabefeld
+let userId = localStorage.getItem("userId");
+
+if (!userId) {
+    document.getElementById("userIdContainer").style.display = "block"; // Eingabe anzeigen
+}
+
+function setUserId() {
+    const userId = document.getElementById("userIdInput").value.trim();
+
+    if (userId === "") {
+        alert("Bitte eine gültige Matrikelnummer eingeben.");
+        return;
+    }
+
+    localStorage.setItem("userId", userId);
+    document.getElementById("userIdContainer").style.display = "none"; // Eingabemaske ausblenden
+}
+
 let beantworteteRäume = new Set();
 
-export function zeigeQuiz(raum) {
-    // Prüfen, ob das Quiz für diesen Raum bereits gezeigt wurde
-    if (beantworteteRäume.has(raum)) {
-        return; // Falls ja, nichts tun (kein Quiz anzeigen)
+export async function zeigeQuiz(raum) {
+    const db = await getDatabase(); // Firestore erst laden, wenn verfügbar
+    userId = localStorage.getItem("userId");
+
+    if (!userId) {
+        alert("Bitte zuerst eine Matrikelnummer eingeben.");
+        document.getElementById("userIdContainer").style.display = "block";
+        return;
+    }
+
+    const docRef = doc(db, "quizErgebnisse", userId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists() && docSnap.data().beantworteteRäume.includes(raum)) {
+        return; // Quiz wurde bereits für diesen Raum gemacht
     }
 
     if (quizFragen[raum]) {
-        beantworteteRäume.add(raum); // Raum als "gefragt" markieren
-
         document.getElementById("quizFrage").innerText = quizFragen[raum].frage;
         const optionenContainer = document.getElementById("quizOptionen");
-        optionenContainer.innerHTML = ""; // Vorherige Buttons löschen
+        optionenContainer.innerHTML = "";
 
-        // Antwortmöglichkeiten zufällig mischen
         let gemischteOptionen = [...quizFragen[raum].optionen].sort(() => Math.random() - 0.5);
 
         gemischteOptionen.forEach(option => {
             const button = document.createElement("button");
             button.innerText = option;
             button.classList.add("quiz-option");
-            button.addEventListener("click", () => {
-                speicherePunkte(raum, option);
+            button.addEventListener("click", async () => {
+                await speicherePunkte(raum, option);
                 schließeQuiz();
             });
             optionenContainer.appendChild(button);
@@ -97,15 +136,43 @@ export function zeigeQuiz(raum) {
     }
 }
 
-export function speicherePunkte(raum, auswahl) {
-    if (quizFragen[raum].antwort === auswahl) {
-        quizPunkte += quizFragen[raum].punkte;
+
+export async function speicherePunkte(raum, auswahl) {
+    userId = localStorage.getItem("userId");
+
+    if (!userId) return;
+
+    const docRef = doc(db, "quizErgebnisse", userId);
+    const docSnap = await getDoc(docRef);
+
+    let quizPunkteNeu = 0;
+    let beantworteteRäume = [];
+
+    if (docSnap.exists()) {
+        beantworteteRäume = docSnap.data().beantworteteRäume;
+        quizPunkteNeu = docSnap.data().punkte;
     }
+
+    if (!beantworteteRäume.includes(raum)) {
+        if (quizFragen[raum].antwort === auswahl) {
+            quizPunkteNeu += quizFragen[raum].punkte;
+        }
+        beantworteteRäume.push(raum);
+    }
+
+    await setDoc(docRef, {
+        punkte: quizPunkteNeu,
+        beantworteteRäume: beantworteteRäume
+    });
+
+    console.log(`Punkte gespeichert für ${userId}: ${quizPunkteNeu}`);
 }
 
 function schließeQuiz() {
     document.getElementById("quizContainer").style.display = "none";
 }
+
+window.setUserId = setUserId;
 
 // // Marker für den Proberaum zum Lagerraum
 // let proberaumlagerMarkerGeometry = new THREE.PlaneGeometry(1, 0.5);
