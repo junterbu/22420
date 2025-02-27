@@ -1,18 +1,23 @@
 import { solveLinearSystem, invertMatrix, multiplyMatrixVector } from "./Marshall.js";
-
+import { quizPunkte, quizFragen } from "./Marker.js";
 export function generatePDFReport(mischgutName, eimerWerte, bitumengehalt, Rohdichten, raumdichten, sieblinieCanvas) {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF();
     let startY = 10;
 
     // Titel
-    pdf.setFontSize(16);
+    pdf.setFontSize(20);
     pdf.text("Virtueller Laborbericht", 105, startY, { align: "center" });
     startY += 10;
 
     // Mischgut
-    pdf.setFontSize(12);
-    pdf.text(`Asphaltmischung: ${mischgutName}`, 12, startY);
+    pdf.setFontSize(16);
+    pdf.text(`Asphaltmischung: ${mischgutName}`, 10, startY);
+    startY += 10;
+
+    // Punkteübersicht
+    pdf.setFontSize(14);
+    pdf.text(`Erreichte Punkte: ${quizPunkte} / ${Object.values(quizFragen).reduce((sum, frage) => sum + frage.punkte, 0)}`, 10, startY);
     startY += 10;
 
     // Eimerwerte Tabelle

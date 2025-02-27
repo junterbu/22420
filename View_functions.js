@@ -5,7 +5,7 @@ import {TWEEN} from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.mod
 import { isMobileDevice, scene } from './Allgemeines.js';
 import { lagerMarker, leaveproberaumMarker, proberaumlagerMarker, lagerproberaumMarker, toMischraumMarker, leaveMischraum, leavelagerMarker, toMarshallMarker, leaveMarshall, activeMarkers, markers} from "./Marker.js";
 import { VRButton } from 'three/addons/webxr/VRButton.js';
-
+import { zeigeQuiz, speicherePunkte, quizFragen, quizPunkte } from "./Marker.js";
 // Bestimmen Sie das Event basierend auf dem Gerät
 const inputEvent = isMobileDevice() ? 'touchstart' : 'click';
 
@@ -161,6 +161,7 @@ export function goToLager() {
 
 export function fromLagertoProberaum() {
     currentRoom = "Gesteinsraum";
+    zeigeQuiz("Gesteinsraum");
     //Wegpunkte vom Lager ins Labor
     const points = [
         new THREE.Vector3(-12.5, 1.5, 4),  // Startpunkt (Lager)
@@ -269,6 +270,7 @@ export function fromProberaumtoLager() {
 
 export function goToMischraum() {
     currentRoom = 'Mischraum'
+    zeigeQuiz("Mischer");
     //Wegpunkte vom Gesteinsraum ins Lager
     const points = [
         new THREE.Vector3(5, 1.5, -15),    // Startpunkt
@@ -375,6 +377,7 @@ export function leaveView() {
 }
 
 export function toMarshall() {
+    zeigeQuiz("Marshall");
     // Wegpunkte vom Gesteinsraum ins Lager
     const points = [
         new THREE.Vector3(-8, 1.5, 7),    // Startpunkt

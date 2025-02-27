@@ -42,6 +42,59 @@ export let activeMarkers = [lagerMarker, leaveproberaumMarker, proberaumlagerMar
 lagerproberaumMarker.visible = false;
 toMarshallMarker.visible = false;
 
+export let quizPunkte = 0;
+export const quizFragen = {
+    "Gesteinsraum": {
+        frage: "Welche Aussage zur CE-Kennzeichnung von Asphaltmischgut ist korrekt?",
+        optionen: ["Sie garantiert eine hohe Qualität des Produkts", "Sie zeigt an, dass gesetzliche Vorschriften eingehalten wurden", "Sie ist nur für importierte Baustoffe erforderlich", "Sie wird nur auf Wunsch des Herstellers vergeben"],
+        antwort: "Sie zeigt an, dass gesetzliche Vorschriften eingehalten wurden",
+        punkte: 10
+    },
+    "Mischer": {
+        frage: "Warum ist eine Typprüfung von Asphaltmischgut notwendig?",
+        optionen: ["Um den richtigen Mischguttyp für eine Baustelle zu ermitteln", "Um die gesetzlichen Anforderungen an das Mischgut zu überprüfen", "Um die optimale Temperatur für das Mischen festzulegen", "Um den Recyclinganteil im Asphalt zu bestimmen"],
+        antwort: "Um die gesetzlichen Anforderungen an das Mischgut zu überprüfen",
+        punkte: 10
+    },
+    "Marshall": {
+        frage: "Wie wird der optimale Bindemittelgehalt eines Asphaltmischguts ermittelt?",
+        optionen: ["Durch eine rechnerische Ableitung der Sieblinie", "Durch Erhitzen des Mischguts auf eine festgelegte Temperatur", "Durch Erstellen einer Polynomfunktion und Finden des Maximums", "Durch Zugabe von Bindemittel in 1%-Schritten und Sichtprüfung"],
+        antwort: "Durch Erstellen einer Polynomfunktion und Finden des Maximums",
+        punkte: 10
+    }
+};
+
+export function zeigeQuiz(raum) {
+    if (quizFragen[raum]) {
+        document.getElementById("quizFrage").innerText = quizFragen[raum].frage;
+        const optionenContainer = document.getElementById("quizOptionen");
+        optionenContainer.innerHTML = ""; // Vorherige Buttons löschen
+
+        quizFragen[raum].optionen.forEach(option => {
+            const button = document.createElement("button");
+            button.innerText = option;
+            button.classList.add("quiz-option"); // Stil bleibt modern
+            button.addEventListener("click", () => {
+                speicherePunkte(raum, option);
+                schließeQuiz(); // Schließt das Quiz direkt nach Klick
+            });
+            optionenContainer.appendChild(button);
+        });
+
+        document.getElementById("quizContainer").style.display = "block";
+    }
+}
+
+export function speicherePunkte(raum, auswahl) {
+    if (quizFragen[raum].antwort === auswahl) {
+        quizPunkte += quizFragen[raum].punkte;
+    }
+}
+
+function schließeQuiz() {
+    document.getElementById("quizContainer").style.display = "none";
+}
+
 // // Marker für den Proberaum zum Lagerraum
 // let proberaumlagerMarkerGeometry = new THREE.PlaneGeometry(1, 0.5);
 // let proberaumlagerMarkerMaterial = new THREE.MeshStandardMaterial({ color: 0xbebdb8 ,side: THREE.DoubleSide })  
